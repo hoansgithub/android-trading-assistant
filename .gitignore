@@ -1,0 +1,59 @@
+# Gradle
+.gradle/
+/build/
+**/build/
+*.iml
+.idea/
+.kotlin/
+local.properties
+.DS_Store
+*.log
+*.class
+*.jar
+*.war
+*.zip
+*.tar
+*.gz
+
+# Android Build Outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Kotlin
+*.kotlin_module
+.project
+.settings/
+.classpath
+.factorypath
+
+# Android Specific
+/app/build/
+/app/debug/
+/app/release/
+/app/.externalNativeBuild/
+/app/local.properties
+/app/.gradle/
+/app/.idea/
+/app/*.iml
+/app/.cxx/
+/app/captures/
+/app/src/main/jniLibs/
+/app/src/main/obj/
+/app/src/main/libs/
+/app/src/main/resources/
+/app/src/main/gen/
+/app/src/main/aidl/
+
+# Android Studio generates
+*.hprof
+proguard/
+mapping.txt
+seeds.txt
+usage.txt
+
+# Other
+temp/
+tmp/
+/docs
