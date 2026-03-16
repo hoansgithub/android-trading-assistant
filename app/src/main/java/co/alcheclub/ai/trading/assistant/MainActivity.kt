@@ -1,9 +1,9 @@
 package co.alcheclub.ai.trading.assistant
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -11,17 +11,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import co.alcheclub.ai.trading.assistant.ui.theme.AITradingAssistantTheme
+import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AITradingAssistantTheme {
+            AlphaProfitTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Alpha Profit AI",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -41,7 +41,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    AITradingAssistantTheme {
-        Greeting("Android")
+    AlphaProfitTheme {
+        Greeting("Alpha Profit AI")
     }
 }

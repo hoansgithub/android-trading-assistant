@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "AI Trading Assistant"
 include(":app")
- 
