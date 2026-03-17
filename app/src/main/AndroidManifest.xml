@@ -22,12 +22,18 @@
             android:name=".RootActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AlphaProfitAI">
+            android:theme="@style/Theme.AlphaProfitAI.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- LoginActivity - Authentication flow -->
+        <activity
+            android:name=".modules.login.LoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- OnboardingActivity - First-time user flow -->
         <activity

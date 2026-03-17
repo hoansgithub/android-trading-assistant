@@ -6,13 +6,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,12 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import co.alcheclub.ai.trading.assistant.MainActivity
 import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
+import co.alcheclub.ai.trading.assistant.di.AppModule
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
-import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 
 /**
  * OnboardingActivity - First-time user onboarding flow
@@ -46,9 +40,13 @@ import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
  * 8. Disclaimer
  * 9. All Set
  *
- * After completion → Launch MainActivity and finish
+ * After completion -> Launch MainActivity and finish
  */
 class OnboardingActivity : AppCompatActivity() {
+
+    private val viewModel by lazy {
+        OnboardingViewModel(AppModule.onboardingRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,30 +60,10 @@ class OnboardingActivity : AppCompatActivity() {
 
                     BackHandler(enabled = true) { showExitDialog = true }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        // TODO: Replace with OnboardingScreen composable
-                        val dimens = AppDimens.current
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(dimens.spaceLg)
-                        ) {
-                            Text(
-                                text = "Onboarding",
-                                style = MaterialTheme.typography.displaySmall,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = "Survey flow coming soon",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    OnboardingScreen(
+                        viewModel = viewModel,
+                        onComplete = { navigateToMain() }
+                    )
 
                     if (showExitDialog) {
                         AlertDialog(
@@ -107,12 +85,6 @@ class OnboardingActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    fun completeOnboardingAndNavigate() {
-        // TODO: Mark onboarding as complete via use case
-        // TODO: Track analytics event
-        navigateToMain()
     }
 
     private fun navigateToMain() {

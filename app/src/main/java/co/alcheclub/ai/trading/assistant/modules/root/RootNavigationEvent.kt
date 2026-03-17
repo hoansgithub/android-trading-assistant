@@ -8,6 +8,7 @@ sealed class RootNavigationEvent {
     data class NavigateTo(val destination: Destination) : RootNavigationEvent()
 
     enum class Destination {
+        LOGIN,
         ONBOARDING,
         MAIN
     }

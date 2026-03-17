@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "93229658426",
+    "project_id": "ios02-trading-assistant",
+    "storage_bucket": "ios02-trading-assistant.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93229658426:android:28e882df6c4a252d73e003",
+        "android_client_info": {
+          "package_name": "co.alcheclub.ai.trading.assistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "93229658426-jqc9ret1icc9hm7vjm3q28otlacmb5pi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbQZKTdNKyuDxv7J6z9X2FCB4gijbt2rs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "93229658426-jqc9ret1icc9hm7vjm3q28otlacmb5pi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "93229658426-j9aag4msbh0jbkkf5ej7pqp2j2rman7c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.alcheclub.app.ai.trading.assistant"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
