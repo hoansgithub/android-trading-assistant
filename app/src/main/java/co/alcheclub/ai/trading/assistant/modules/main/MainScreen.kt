@@ -45,6 +45,8 @@ data class TabItem(
 
 @Composable
 fun MainScreen(
+    homeViewModel: HomeViewModel,
+    strategyViewModel: StrategyViewModel,
     onLogout: () -> Unit
 ) {
     val dimens = AppDimens.current
@@ -70,8 +72,8 @@ fun MainScreen(
                 .fillMaxWidth()
         ) {
             when (selectedTab) {
-                0 -> HomeTab()
-                1 -> StrategyTab()
+                0 -> HomeTab(viewModel = homeViewModel)
+                1 -> StrategyTab(viewModel = strategyViewModel)
                 2 -> ProfileTab(onLogout = onLogout)
             }
         }

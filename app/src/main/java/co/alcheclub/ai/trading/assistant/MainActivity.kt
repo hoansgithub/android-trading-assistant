@@ -27,6 +27,9 @@ import kotlinx.coroutines.launch
  */
 class MainActivity : AppCompatActivity() {
 
+    private val homeViewModel by lazy { AppModule.createHomeViewModel() }
+    private val strategyViewModel by lazy { AppModule.createStrategyViewModel() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,6 +39,8 @@ class MainActivity : AppCompatActivity() {
             AlphaProfitTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainScreen(
+                        homeViewModel = homeViewModel,
+                        strategyViewModel = strategyViewModel,
                         onLogout = { performLogout() }
                     )
                 }

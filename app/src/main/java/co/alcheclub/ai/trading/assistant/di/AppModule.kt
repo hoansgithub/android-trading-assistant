@@ -16,9 +16,13 @@ import co.alcheclub.ai.trading.assistant.data.repository.AnalysisRepositoryImpl
 import co.alcheclub.ai.trading.assistant.data.repository.AuthRepositoryImpl
 import co.alcheclub.ai.trading.assistant.data.repository.MarketDataRepositoryImpl
 import co.alcheclub.ai.trading.assistant.data.repository.OnboardingRepositoryImpl
+import co.alcheclub.ai.trading.assistant.data.repository.StrategyRepositoryImpl
 import co.alcheclub.ai.trading.assistant.domain.repository.AnalysisRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.OnboardingRepository
+import co.alcheclub.ai.trading.assistant.domain.repository.StrategyRepository
+import co.alcheclub.ai.trading.assistant.modules.main.HomeViewModel
+import co.alcheclub.ai.trading.assistant.modules.main.StrategyViewModel
 import co.alcheclub.ai.trading.assistant.domain.usecase.AnalyzeChartUseCase
 import co.alcheclub.ai.trading.assistant.domain.usecase.FetchAnalysesUseCase
 import co.alcheclub.ai.trading.assistant.domain.usecase.RecognizeChartUseCase
@@ -140,6 +144,10 @@ object AppModule {
         AnalysisRepositoryImpl(supabaseClient = SupabaseProvider.client)
     }
 
+    val strategyRepository: StrategyRepository by lazy {
+        StrategyRepositoryImpl(supabaseClient = SupabaseProvider.client)
+    }
+
     // endregion
 
     // region Use Cases (transient — new instance each call)
@@ -160,6 +168,24 @@ object AppModule {
 
     fun createFetchAnalysesUseCase(): FetchAnalysesUseCase {
         return FetchAnalysesUseCase(analysisRepository = analysisRepository)
+    }
+
+    // endregion
+
+    // region ViewModels (transient)
+
+    fun createHomeViewModel(): HomeViewModel {
+        return HomeViewModel(
+            analysisRepository = analysisRepository,
+            authRepository = authRepository
+        )
+    }
+
+    fun createStrategyViewModel(): StrategyViewModel {
+        return StrategyViewModel(
+            strategyRepository = strategyRepository,
+            authRepository = authRepository
+        )
     }
 
     // endregion
