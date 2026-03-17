@@ -73,7 +73,11 @@ object ImageOptimizer {
         // Compress to JPEG with quality stepping
         val result = compressToLimit(resized, config.jpegQuality, config.maxOutputBytes)
 
-        // Recycle bitmaps if we created new ones
+        // Capture dimensions before recycling
+        val finalWidth = resized.width
+        val finalHeight = resized.height
+
+        // Recycle bitmaps
         if (resized != bitmap) resized.recycle()
         bitmap.recycle()
 
@@ -82,7 +86,7 @@ object ImageOptimizer {
             return null
         }
 
-        Log.d(TAG, "${imageData.size} -> ${result.size} bytes (${resized.width}x${resized.height})")
+        Log.d(TAG, "${imageData.size} -> ${result.size} bytes (${finalWidth}x${finalHeight})")
         return result
     }
 
