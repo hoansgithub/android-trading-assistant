@@ -21,18 +21,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.di.AppModule
 import co.alcheclub.ai.trading.assistant.domain.model.ExperienceLevel
 import co.alcheclub.ai.trading.assistant.domain.model.LearningStyle
@@ -48,7 +57,11 @@ import co.alcheclub.ai.trading.assistant.modules.onboarding.steps.ProcessingView
 import co.alcheclub.ai.trading.assistant.modules.onboarding.steps.RateUsView
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgPrimary
+import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
+import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
+import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
+import co.alcheclub.ai.trading.assistant.ui.theme.Warning
 
 @Composable
 fun OnboardingScreen(
@@ -56,10 +69,11 @@ fun OnboardingScreen(
     activity: android.app.Activity,
     onComplete: () -> Unit
 ) {
-    val currentStep by viewModel.currentStep.collectAsState()
-    val isCompleted by viewModel.isCompleted.collectAsState()
-    val isAnalyzing by viewModel.isAnalyzing.collectAsState()
-    val analyzingProgress by viewModel.analyzingProgress.collectAsState()
+    val currentStep by viewModel.currentStep.collectAsStateWithLifecycle()
+    val isCompleted by viewModel.isCompleted.collectAsStateWithLifecycle()
+    val isAnalyzing by viewModel.isAnalyzing.collectAsStateWithLifecycle()
+    val analyzingProgress by viewModel.analyzingProgress.collectAsStateWithLifecycle()
+    val analysisError by viewModel.analysisError.collectAsStateWithLifecycle()
     val dimens = AppDimens.current
 
     // Navigate when completed (LaunchedEffect prevents multiple fires on recomposition)
@@ -78,6 +92,78 @@ fun OnboardingScreen(
                 .background(BgPrimary)
         ) {
             AnalyzingChartView(progress = analyzingProgress)
+        }
+        return
+    }
+
+    // Show error screen if analysis failed (matching iOS analysisError state)
+    if (analysisError != null) {
+        val errorText = analysisError ?: ""
+        val parts = errorText.split("\n", limit = 2)
+        val title = parts.getOrElse(0) { "Analysis Failed" }
+        val message = parts.getOrElse(1) { "You can try again from the home screen." }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgPrimary),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.padding(dimens.spaceXxl),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ErrorOutline,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = Warning
+                )
+
+                Spacer(modifier = Modifier.height(dimens.spaceXxl))
+
+                Text(
+                    text = title,
+                    fontFamily = PoppinsFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    color = TextPrimary,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(dimens.spaceMd))
+
+                Text(
+                    text = message,
+                    fontFamily = PoppinsFontFamily,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(dimens.space2Xl))
+
+                Button(
+                    onClick = { viewModel.dismissAnalysisError() },
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Emerald,
+                        contentColor = Color.Black
+                    )
+                ) {
+                    Text(
+                        text = "Continue",
+                        fontFamily = PoppinsFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
         }
         return
     }
@@ -157,7 +243,7 @@ fun OnboardingScreen(
             ) { step ->
                 when (step) {
                     OnboardingStep.EXPERIENCE_LEVEL -> {
-                        val selected by viewModel.selectedExperience.collectAsState()
+                        val selected by viewModel.selectedExperience.collectAsStateWithLifecycle()
                         SurveyStepView(
                             question = "How familiar are you with trading?",
                             options = ExperienceLevel.entries.toList(),
@@ -172,7 +258,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.TIME_AVAILABILITY -> {
-                        val selected by viewModel.selectedTime.collectAsState()
+                        val selected by viewModel.selectedTime.collectAsStateWithLifecycle()
                         SurveyStepView(
                             question = "How often can you check the markets?",
                             options = TimeAvailability.entries.toList(),
@@ -187,7 +273,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.RISK_COMFORT -> {
-                        val selected by viewModel.selectedRisk.collectAsState()
+                        val selected by viewModel.selectedRisk.collectAsStateWithLifecycle()
                         SurveyStepView(
                             question = "How do you feel about risk?",
                             options = RiskComfort.entries.toList(),
@@ -202,7 +288,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.PRIMARY_GOAL -> {
-                        val selected by viewModel.selectedGoal.collectAsState()
+                        val selected by viewModel.selectedGoal.collectAsStateWithLifecycle()
                         SurveyStepView(
                             question = "What's your main goal?",
                             options = PrimaryGoal.entries.toList(),
@@ -217,7 +303,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.LEARNING_STYLE -> {
-                        val selected by viewModel.selectedLearning.collectAsState()
+                        val selected by viewModel.selectedLearning.collectAsStateWithLifecycle()
                         SurveyStepView(
                             question = "Do you want to learn while analyzing?",
                             options = LearningStyle.entries.toList(),
@@ -238,7 +324,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.PROCESSING -> {
-                        val progress by viewModel.processingProgress.collectAsState()
+                        val progress by viewModel.processingProgress.collectAsStateWithLifecycle()
                         ProcessingView(progress = progress)
                     }
 
@@ -249,7 +335,7 @@ fun OnboardingScreen(
                     }
 
                     OnboardingStep.ALL_SET -> {
-                        val strategy by viewModel.generatedStrategy.collectAsState()
+                        val strategy by viewModel.generatedStrategy.collectAsStateWithLifecycle()
                         AllSetView(
                             strategy = strategy,
                             onImageCaptured = { imageData ->

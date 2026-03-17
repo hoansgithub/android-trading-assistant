@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
+import co.alcheclub.ai.trading.assistant.modules.main.components.AssetIconView
 import co.alcheclub.ai.trading.assistant.domain.model.RiskLevel
 import co.alcheclub.ai.trading.assistant.domain.model.TradingSignal
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
@@ -174,18 +175,24 @@ private fun AnalysisCard(analysis: Analysis) {
             .background(BgCard)
             .padding(dimens.spaceLg)
     ) {
-        // Header: Symbol + Signal badge
+        // Header: Icon + Symbol + Signal badge
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            AssetIconView(
+                symbol = analysis.assetSymbol,
+                size = 40.dp
+            )
+
+            Spacer(Modifier.width(12.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = analysis.assetSymbol,
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

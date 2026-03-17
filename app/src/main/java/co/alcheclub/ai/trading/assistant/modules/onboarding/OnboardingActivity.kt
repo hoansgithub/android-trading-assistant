@@ -51,6 +51,7 @@ class OnboardingActivity : AppCompatActivity() {
             OnboardingViewModel(
                 onboardingRepository = AppModule.onboardingRepository,
                 authRepository = AppModule.authRepository,
+                strategyRepository = AppModule.strategyRepository,
                 analyzeChartUseCase = AppModule.createAnalyzeChartUseCase()
             )
         }

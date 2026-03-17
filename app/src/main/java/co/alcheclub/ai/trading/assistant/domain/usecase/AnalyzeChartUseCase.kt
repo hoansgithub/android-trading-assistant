@@ -3,11 +3,12 @@ package co.alcheclub.ai.trading.assistant.domain.usecase
 import android.util.Log
 import co.alcheclub.ai.trading.assistant.data.remote.service.GeminiTextService
 import co.alcheclub.ai.trading.assistant.data.remote.service.ImageUploadService
-import co.alcheclub.ai.trading.assistant.domain.repository.MarketDataRepository
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.AnalysisType
 import co.alcheclub.ai.trading.assistant.domain.model.AssetType
+import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.repository.AnalysisRepository
+import co.alcheclub.ai.trading.assistant.domain.repository.MarketDataRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +28,11 @@ class AnalyzeChartUseCase(
         private const val TAG = "AnalyzeChart"
     }
 
-    suspend fun execute(imageData: ByteArray, userId: UUID): Result<Analysis> {
+    suspend fun execute(
+        imageData: ByteArray,
+        userId: UUID,
+        strategy: Strategy? = null
+    ): Result<Analysis> {
         // Step 1: Recognize chart
         Log.d(TAG, "Step 1: Recognizing chart...")
         val recognition = recognizeChartUseCase.execute(imageData).getOrElse { e ->
@@ -60,16 +65,19 @@ class AnalyzeChartUseCase(
         }
         Log.d(TAG, "AI result: ${aiResult.signal} confidence=${aiResult.confidenceScore}")
 
-        // Step 4: Build Analysis
+        // Step 4: Build Analysis with strategy reference
         val analysis = Analysis(
             userId = userId,
+            strategyId = strategy?.id,
             assetSymbol = marketData.symbol,
+            assetName = recognition.asset,
             signal = aiResult.signal,
             confidenceScore = aiResult.confidenceScore,
             actionPlan = aiResult.actionPlan,
             riskAssessment = aiResult.riskAssessment,
             aiExplanation = aiResult.aiExplanation,
             marketContext = aiResult.marketContext,
+            strategyName = strategy?.name,
             currentPrice = marketData.ticker24h.lastPrice,
             analysisType = AnalysisType.IMAGE,
             timeframe = marketData.interval
@@ -77,7 +85,7 @@ class AnalyzeChartUseCase(
 
         // Step 5: Save to Supabase
         Log.d(TAG, "Step 5: Saving to Supabase...")
-        val savedAnalysis = analysisRepository.saveAnalysis(analysis, marketData).getOrElse { e ->
+        val savedAnalysis = analysisRepository.saveAnalysis(analysis, marketData, strategy).getOrElse { e ->
             Log.e(TAG, "Save failed (non-fatal)", e)
             analysis // Return unsaved analysis
         }

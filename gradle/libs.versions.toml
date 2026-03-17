@@ -38,6 +38,7 @@ kotlinxSerializationJson = "1.7.3"
 # PLAY SERVICES
 # ============================================
 playReview = "2.0.2"
+coil = "2.7.0"
 
 # ============================================
 # TESTING
@@ -96,6 +97,11 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # PLAY SERVICES
 # ============================================
 play-review = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
+
+# ============================================
+# IMAGE LOADING
+# ============================================
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 # ============================================
 # TESTING

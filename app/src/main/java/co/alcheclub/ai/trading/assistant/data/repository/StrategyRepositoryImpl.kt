@@ -9,6 +9,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
@@ -42,6 +44,66 @@ class StrategyRepositoryImpl(
             Result.success(strategies)
         } catch (e: Exception) {
             Log.e(TAG, "Fetch strategies failed", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun saveStrategy(strategy: Strategy, userId: UUID): Result<Strategy> {
+        return try {
+            val dto = buildJsonObject {
+                put("id", JsonPrimitive(strategy.id.toString()))
+                put("user_id", JsonPrimitive(userId.toString()))
+                put("name", JsonPrimitive(strategy.name))
+                put("description", JsonPrimitive(strategy.description))
+                put("style", JsonPrimitive(strategy.style.value))
+                put("timeframe", JsonPrimitive(strategy.timeframe))
+                put("direction", JsonPrimitive(strategy.direction.value))
+                put("risk_tolerance", JsonPrimitive("moderate"))
+                put("risk_per_trade_percent", JsonPrimitive(strategy.riskPerTradePercent))
+                put("config", buildJsonObject {
+                    put("maxOpenPositions", JsonPrimitive(strategy.maxOpenPositions))
+                    put("entry", buildJsonObject {
+                        put("logic", JsonPrimitive("all"))
+                        put("minConditions", JsonPrimitive(1))
+                        put("rules", kotlinx.serialization.json.JsonArray(emptyList()))
+                    })
+                    put("targets", buildJsonObject {
+                        put("takeProfit", buildJsonObject {
+                            put("method", JsonPrimitive("risk_multiple"))
+                            put("levels", kotlinx.serialization.json.JsonArray(listOf(
+                                buildJsonObject {
+                                    put("level", JsonPrimitive(1))
+                                    put("riskMultiple", JsonPrimitive(2.0))
+                                },
+                                buildJsonObject {
+                                    put("level", JsonPrimitive(2))
+                                    put("riskMultiple", JsonPrimitive(3.0))
+                                }
+                            )))
+                        })
+                        put("stopLoss", buildJsonObject {
+                            put("method", JsonPrimitive("atr_multiple"))
+                            put("value", JsonPrimitive(1.5))
+                        })
+                    })
+                    put("filters", buildJsonObject {})
+                })
+                put("is_preset", JsonPrimitive(strategy.isPreset))
+                put("is_active", JsonPrimitive(strategy.isActive))
+                put("is_default", JsonPrimitive(strategy.isDefault))
+            }
+
+            val response = supabaseClient.postgrest[TABLE]
+                .insert(dto) { select() }
+
+            val rows = response.decodeList<JsonObject>()
+            val savedRow = rows.firstOrNull()
+            val savedStrategy = savedRow?.let { mapRowToDomain(it) } ?: strategy
+
+            Log.d(TAG, "Strategy saved: ${savedStrategy.name} (${savedStrategy.id})")
+            Result.success(savedStrategy)
+        } catch (e: Exception) {
+            Log.e(TAG, "Save strategy failed", e)
             Result.failure(e)
         }
     }

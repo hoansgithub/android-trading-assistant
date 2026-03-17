@@ -112,6 +112,9 @@ dependencies {
     // Play In-App Review
     implementation(libs.play.review)
 
+    // Image Loading (asset icons)
+    implementation(libs.coil.compose)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

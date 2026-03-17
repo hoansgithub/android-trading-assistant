@@ -5,6 +5,7 @@ import co.alcheclub.ai.trading.assistant.domain.model.ActionPlan
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.AnalysisType
 import co.alcheclub.ai.trading.assistant.domain.model.MarketData
+import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.RiskAssessment
 import co.alcheclub.ai.trading.assistant.domain.model.RiskLevel
 import co.alcheclub.ai.trading.assistant.domain.model.TakeProfit
@@ -55,9 +56,9 @@ class AnalysisRepositoryImpl(
         }
     }
 
-    override suspend fun saveAnalysis(analysis: Analysis, marketData: MarketData): Result<Analysis> {
+    override suspend fun saveAnalysis(analysis: Analysis, marketData: MarketData, strategy: Strategy?): Result<Analysis> {
         return try {
-            val dto = buildInsertDto(analysis, marketData)
+            val dto = buildInsertDto(analysis, marketData, strategy)
 
             val response = supabaseClient.postgrest[TABLE]
                 .insert(dto) { select() }
@@ -105,7 +106,7 @@ class AnalysisRepositoryImpl(
 
     // region DTO Building
 
-    private fun buildInsertDto(analysis: Analysis, marketData: MarketData): JsonObject {
+    private fun buildInsertDto(analysis: Analysis, marketData: MarketData, strategy: Strategy?): JsonObject {
         val currentPrice = analysis.currentPrice
         val stopLoss = analysis.actionPlan.stopLoss
         val takeProfits = analysis.actionPlan.takeProfits
@@ -122,6 +123,17 @@ class AnalysisRepositoryImpl(
             put("asset", JsonPrimitive(analysis.assetSymbol))
             put("asset_name", JsonPrimitive(analysis.assetName))
             put("strategy_id", analysis.strategyId?.let { JsonPrimitive(it.toString()) } ?: JsonPrimitive(null as String?))
+            put("strategy_snapshot", if (strategy != null) {
+                buildJsonObject {
+                    put("name", JsonPrimitive(strategy.name))
+                    put("style", JsonPrimitive(strategy.style.value))
+                    put("timeframe", JsonPrimitive(strategy.timeframe))
+                    put("direction", JsonPrimitive(strategy.direction.value))
+                    put("riskPerTrade", JsonPrimitive(strategy.riskPerTradeFormatted))
+                }
+            } else {
+                JsonPrimitive(null as String?)
+            })
             put("input_source", JsonPrimitive(analysis.analysisType.value))
             put("image_url", analysis.imageUrl?.let { JsonPrimitive(it) } ?: JsonPrimitive(null as String?))
             put("timeframe", JsonPrimitive(analysis.timeframe))

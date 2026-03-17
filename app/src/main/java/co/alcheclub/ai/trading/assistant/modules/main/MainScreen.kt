@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,18 +66,28 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BgPrimary)
+            .statusBarsPadding()
     ) {
-        // Content area
+        // Content area — all tabs stay composed to preserve scroll position and state.
+        // Hidden tabs get 0dp size so they don't consume layout or touch events.
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            when (selectedTab) {
-                0 -> HomeTab(viewModel = homeViewModel)
-                1 -> StrategyTab(viewModel = strategyViewModel)
-                2 -> ProfileTab(viewModel = profileViewModel, onLogout = onLogout)
-            }
+            HomeTab(
+                viewModel = homeViewModel,
+                modifier = if (selectedTab == 0) Modifier.fillMaxSize() else Modifier.size(0.dp)
+            )
+            StrategyTab(
+                viewModel = strategyViewModel,
+                modifier = if (selectedTab == 1) Modifier.fillMaxSize() else Modifier.size(0.dp)
+            )
+            ProfileTab(
+                viewModel = profileViewModel,
+                onLogout = onLogout,
+                modifier = if (selectedTab == 2) Modifier.fillMaxSize() else Modifier.size(0.dp)
+            )
         }
 
         // Divider
