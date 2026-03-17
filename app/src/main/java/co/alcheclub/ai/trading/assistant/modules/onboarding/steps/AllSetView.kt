@@ -1,10 +1,14 @@
 package co.alcheclub.ai.trading.assistant.modules.onboarding.steps
 
-import android.graphics.Bitmap
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -64,7 +68,6 @@ import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
 import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun AllSetView(
@@ -84,14 +87,37 @@ fun AllSetView(
 
     var showMenu by remember { mutableStateOf(false) }
 
-    // Camera launcher — converts Bitmap to JPEG ByteArray
+    // Create a temp file URI for the camera to save the full-resolution photo
+    val cameraImageUri = remember {
+        val cacheDir = File(context.cacheDir, "camera").apply { mkdirs() }
+        val imageFile = File(cacheDir, "capture_${System.currentTimeMillis()}.jpg")
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imageFile)
+    }
+
+    // Camera launcher — TakePicture saves full-res image to URI, then we read it
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        if (bitmap != null) {
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
-            onImageCaptured(stream.toByteArray())
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(cameraImageUri)
+                val bytes = inputStream?.readBytes()
+                inputStream?.close()
+                if (bytes != null && bytes.isNotEmpty()) {
+                    onImageCaptured(bytes)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("AllSetView", "Failed to read camera image", e)
+            }
+        }
+    }
+
+    // Camera permission launcher — requests CAMERA permission then launches camera
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            cameraLauncher.launch(cameraImageUri)
         }
     }
 
@@ -270,7 +296,13 @@ fun AllSetView(
                         .fillMaxWidth()
                         .clickable {
                             showMenu = false
-                            cameraLauncher.launch(null)
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                cameraLauncher.launch(cameraImageUri)
+                            } else {
+                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
                         }
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically

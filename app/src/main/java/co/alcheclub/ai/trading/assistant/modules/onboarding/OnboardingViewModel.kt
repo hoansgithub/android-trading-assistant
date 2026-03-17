@@ -13,6 +13,7 @@ import co.alcheclub.ai.trading.assistant.domain.model.OnboardingSurvey
 import co.alcheclub.ai.trading.assistant.domain.model.PrimaryGoal
 import co.alcheclub.ai.trading.assistant.domain.model.RiskComfort
 import co.alcheclub.ai.trading.assistant.domain.model.TimeAvailability
+import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.OnboardingRepository
 import co.alcheclub.ai.trading.assistant.domain.usecase.AnalyzeChartUseCase
 import kotlinx.coroutines.delay
@@ -25,6 +26,7 @@ import java.util.UUID
 
 class OnboardingViewModel(
     private val onboardingRepository: OnboardingRepository,
+    private val authRepository: AuthRepository,
     private val analyzeChartUseCase: AnalyzeChartUseCase
 ) : ViewModel() {
 
@@ -221,7 +223,10 @@ class OnboardingViewModel(
     }
 
     fun completeOnboarding() {
-        onboardingRepository.completeOnboarding()
-        _isCompleted.value = true
+        viewModelScope.launch {
+            val userId = authRepository.getCurrentUserId()
+            onboardingRepository.completeOnboarding(userId)
+            _isCompleted.value = true
+        }
     }
 }

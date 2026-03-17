@@ -47,6 +47,7 @@ data class TabItem(
 fun MainScreen(
     homeViewModel: HomeViewModel,
     strategyViewModel: StrategyViewModel,
+    profileViewModel: ProfileViewModel,
     onLogout: () -> Unit
 ) {
     val dimens = AppDimens.current
@@ -74,7 +75,7 @@ fun MainScreen(
             when (selectedTab) {
                 0 -> HomeTab(viewModel = homeViewModel)
                 1 -> StrategyTab(viewModel = strategyViewModel)
-                2 -> ProfileTab(onLogout = onLogout)
+                2 -> ProfileTab(viewModel = profileViewModel, onLogout = onLogout)
             }
         }
 

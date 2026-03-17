@@ -69,6 +69,13 @@ class RootActivity : AppCompatActivity() {
             val authRepository = AppModule.authRepository
             val onboardingRepository = AppModule.onboardingRepository
 
+            // If authenticated, sync onboarding status from Supabase
+            // (handles re-login after logout/reinstall where local prefs were cleared)
+            if (authRepository.isAuthenticated()) {
+                val userId = authRepository.getCurrentUserId()
+                onboardingRepository.syncOnboardingStatus(userId)
+            }
+
             val destination = when {
                 !authRepository.isAuthenticated() ->
                     RootNavigationEvent.Destination.LOGIN

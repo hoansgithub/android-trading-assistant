@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private val homeViewModel by lazy { AppModule.createHomeViewModel() }
     private val strategyViewModel by lazy { AppModule.createStrategyViewModel() }
+    private val profileViewModel by lazy { AppModule.createProfileViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                     MainScreen(
                         homeViewModel = homeViewModel,
                         strategyViewModel = strategyViewModel,
+                        profileViewModel = profileViewModel,
                         onLogout = { performLogout() }
                     )
                 }

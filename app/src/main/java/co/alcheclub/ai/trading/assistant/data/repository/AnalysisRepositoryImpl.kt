@@ -182,8 +182,8 @@ class AnalysisRepositoryImpl(
             val signal = TradingSignal.from(row["signal"]?.jsonPrimitive?.content ?: return null)
             val riskLevel = RiskLevel.from(row["risk_level"]?.jsonPrimitive?.content ?: "medium")
 
-            val resultSnapshot = row["result_snapshot"]?.jsonObject
-            val strategySnapshot = row["strategy_snapshot"]?.jsonObject
+            val resultSnapshot = row["result_snapshot"]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonObject
+            val strategySnapshot = row["strategy_snapshot"]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonObject
 
             val takeProfits = mutableListOf<TakeProfit>()
             row["take_profit_1_price"]?.jsonPrimitive?.contentOrNull?.toBigDecimalOrNull()?.let {

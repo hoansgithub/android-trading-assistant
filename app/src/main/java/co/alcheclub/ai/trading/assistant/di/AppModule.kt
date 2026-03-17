@@ -22,6 +22,7 @@ import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.OnboardingRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.StrategyRepository
 import co.alcheclub.ai.trading.assistant.modules.main.HomeViewModel
+import co.alcheclub.ai.trading.assistant.modules.main.ProfileViewModel
 import co.alcheclub.ai.trading.assistant.modules.main.StrategyViewModel
 import co.alcheclub.ai.trading.assistant.domain.usecase.AnalyzeChartUseCase
 import co.alcheclub.ai.trading.assistant.domain.usecase.FetchAnalysesUseCase
@@ -38,7 +39,10 @@ object AppModule {
     // region Existing
 
     val onboardingRepository: OnboardingRepository by lazy {
-        OnboardingRepositoryImpl(preferencesManager!!)
+        OnboardingRepositoryImpl(
+            preferencesManager = preferencesManager!!,
+            supabaseClient = SupabaseProvider.client
+        )
     }
 
     val authRepository: AuthRepository by lazy {
@@ -185,6 +189,13 @@ object AppModule {
         return StrategyViewModel(
             strategyRepository = strategyRepository,
             authRepository = authRepository
+        )
+    }
+
+    fun createProfileViewModel(): ProfileViewModel {
+        return ProfileViewModel(
+            authRepository = authRepository,
+            supabaseClient = SupabaseProvider.client
         )
     }
 

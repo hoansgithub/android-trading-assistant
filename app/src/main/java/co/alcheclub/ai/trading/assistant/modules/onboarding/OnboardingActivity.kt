@@ -47,6 +47,7 @@ class OnboardingActivity : AppCompatActivity() {
     private val viewModel by lazy {
         OnboardingViewModel(
             onboardingRepository = AppModule.onboardingRepository,
+            authRepository = AppModule.authRepository,
             analyzeChartUseCase = AppModule.createAnalyzeChartUseCase()
         )
     }
