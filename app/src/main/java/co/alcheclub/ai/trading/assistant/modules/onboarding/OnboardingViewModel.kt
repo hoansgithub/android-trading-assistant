@@ -223,10 +223,17 @@ class OnboardingViewModel(
     }
 
     fun completeOnboarding() {
+        // Set local pref + navigate immediately; Supabase write is fire-and-forget
+        onboardingRepository.completeOnboarding()
+        _isCompleted.value = true
+        // Sync to Supabase in background (non-blocking)
         viewModelScope.launch {
-            val userId = authRepository.getCurrentUserId()
-            onboardingRepository.completeOnboarding(userId)
-            _isCompleted.value = true
+            try {
+                val userId = authRepository.getCurrentUserId()
+                onboardingRepository.completeOnboarding(userId)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to sync onboarding to Supabase (non-fatal)", e)
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import co.alcheclub.ai.trading.assistant.MainActivity
 import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
+import co.alcheclub.ai.trading.assistant.core.viewModelFactory
 import co.alcheclub.ai.trading.assistant.di.AppModule
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 
@@ -44,12 +46,14 @@ import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
  */
 class OnboardingActivity : AppCompatActivity() {
 
-    private val viewModel by lazy {
-        OnboardingViewModel(
-            onboardingRepository = AppModule.onboardingRepository,
-            authRepository = AppModule.authRepository,
-            analyzeChartUseCase = AppModule.createAnalyzeChartUseCase()
-        )
+    private val viewModel: OnboardingViewModel by viewModels {
+        viewModelFactory {
+            OnboardingViewModel(
+                onboardingRepository = AppModule.onboardingRepository,
+                authRepository = AppModule.authRepository,
+                analyzeChartUseCase = AppModule.createAnalyzeChartUseCase()
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -87,11 +87,14 @@ fun AllSetView(
 
     var showMenu by remember { mutableStateOf(false) }
 
-    // Create a temp file URI for the camera to save the full-resolution photo
-    val cameraImageUri = remember {
-        val cacheDir = File(context.cacheDir, "camera").apply { mkdirs() }
-        val imageFile = File(cacheDir, "capture_${System.currentTimeMillis()}.jpg")
-        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imageFile)
+    // Stable file path for camera capture — survives activity recreation.
+    // Uses fixed filename since only one capture is active at a time.
+    val cameraImageFile = remember(context) {
+        File(context.cacheDir, "camera").apply { mkdirs() }
+            .resolve("onboarding_capture.jpg")
+    }
+    val cameraImageUri = remember(cameraImageFile) {
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", cameraImageFile)
     }
 
     // Camera launcher — TakePicture saves full-res image to URI, then we read it
@@ -100,9 +103,7 @@ fun AllSetView(
     ) { success: Boolean ->
         if (success) {
             try {
-                val inputStream = context.contentResolver.openInputStream(cameraImageUri)
-                val bytes = inputStream?.readBytes()
-                inputStream?.close()
+                val bytes = context.contentResolver.openInputStream(cameraImageUri)?.use { it.readBytes() }
                 if (bytes != null && bytes.isNotEmpty()) {
                     onImageCaptured(bytes)
                 }
@@ -127,9 +128,7 @@ fun AllSetView(
     ) { uri: Uri? ->
         if (uri != null) {
             try {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val bytes = inputStream?.readBytes()
-                inputStream?.close()
+                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 if (bytes != null && bytes.isNotEmpty()) {
                     onImageCaptured(bytes)
                 }

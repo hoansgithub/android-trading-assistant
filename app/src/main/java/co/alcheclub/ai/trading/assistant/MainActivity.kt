@@ -4,14 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
+import co.alcheclub.ai.trading.assistant.core.viewModelFactory
 import co.alcheclub.ai.trading.assistant.di.AppModule
+import co.alcheclub.ai.trading.assistant.modules.main.HomeViewModel
 import co.alcheclub.ai.trading.assistant.modules.main.MainScreen
+import co.alcheclub.ai.trading.assistant.modules.main.ProfileViewModel
+import co.alcheclub.ai.trading.assistant.modules.main.StrategyViewModel
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 import kotlinx.coroutines.launch
 
@@ -27,9 +32,17 @@ import kotlinx.coroutines.launch
  */
 class MainActivity : AppCompatActivity() {
 
-    private val homeViewModel by lazy { AppModule.createHomeViewModel() }
-    private val strategyViewModel by lazy { AppModule.createStrategyViewModel() }
-    private val profileViewModel by lazy { AppModule.createProfileViewModel() }
+    private val homeViewModel: HomeViewModel by viewModels {
+        viewModelFactory { AppModule.createHomeViewModel() }
+    }
+
+    private val strategyViewModel: StrategyViewModel by viewModels {
+        viewModelFactory { AppModule.createStrategyViewModel() }
+    }
+
+    private val profileViewModel: ProfileViewModel by viewModels {
+        viewModelFactory { AppModule.createProfileViewModel() }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

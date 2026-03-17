@@ -195,7 +195,8 @@ object AppModule {
     fun createProfileViewModel(): ProfileViewModel {
         return ProfileViewModel(
             authRepository = authRepository,
-            supabaseClient = SupabaseProvider.client
+            supabaseClient = SupabaseProvider.client,
+            httpClient = HttpClientProvider.client
         )
     }
 

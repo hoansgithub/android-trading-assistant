@@ -35,7 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,11 +71,12 @@ fun ProfileTab(
 ) {
     val dimens = AppDimens.current
     val context = LocalContext.current
-    val userProfile by viewModel.userProfile.collectAsState()
-    val showSignOutDialog by viewModel.showSignOutDialog.collectAsState()
-    val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
-    val isProcessing by viewModel.isProcessing.collectAsState()
-    val message by viewModel.message.collectAsState()
+    val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
+    val showSignOutDialog by viewModel.showSignOutDialog.collectAsStateWithLifecycle()
+    val showDeleteDialog by viewModel.showDeleteDialog.collectAsStateWithLifecycle()
+    val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle()
+    val isDeleting by viewModel.isDeleting.collectAsStateWithLifecycle()
+    val message by viewModel.message.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
@@ -266,7 +267,7 @@ fun ProfileTab(
         }
 
         // Loading overlay
-        if (isProcessing) {
+        if (isProcessing || isDeleting) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

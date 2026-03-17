@@ -3,9 +3,16 @@ package co.alcheclub.ai.trading.assistant.modules.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.alcheclub.ai.trading.assistant.BuildConfig
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.ktor.client.HttpClient
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +28,8 @@ data class UserProfile(
 
 class ProfileViewModel(
     private val authRepository: AuthRepository,
-    private val supabaseClient: SupabaseClient
+    private val supabaseClient: SupabaseClient,
+    private val httpClient: HttpClient
 ) : ViewModel() {
 
     companion object {
@@ -39,6 +47,9 @@ class ProfileViewModel(
 
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
+
+    private val _isDeleting = MutableStateFlow(false)
+    val isDeleting: StateFlow<Boolean> = _isDeleting.asStateFlow()
 
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message.asStateFlow()
@@ -87,20 +98,41 @@ class ProfileViewModel(
         }
     }
 
+    /**
+     * Delete account via Supabase Edge Function (matching iOS SupabaseAuthService.deleteAccount).
+     * The edge function handles: R2 images, DB cascade, auth user removal.
+     */
     fun deleteAccount(onComplete: () -> Unit) {
         viewModelScope.launch {
             _showDeleteDialog.value = false
-            _isProcessing.value = true
+            _isDeleting.value = true
             try {
-                // Call Supabase Edge Function to delete account
-                // The edge function handles: R2 images, DB cascade, auth user removal
+                val session = supabaseClient.auth.currentSessionOrNull()
+                    ?: throw Exception("No active session")
+
+                val url = "${BuildConfig.SUPABASE_URL}/functions/v1/delete-user-account"
+
+                val response = httpClient.post(url) {
+                    contentType(ContentType.Application.Json)
+                    header("Authorization", "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
+                    header("apikey", BuildConfig.SUPABASE_ANON_KEY)
+                    header("x-user-token", "Bearer ${session.accessToken}")
+                }
+
+                val statusCode = response.status.value
+                if (statusCode !in 200..299) {
+                    val body = response.bodyAsText()
+                    Log.e(TAG, "Delete account HTTP $statusCode: $body")
+                    throw Exception("Account deletion failed: HTTP $statusCode")
+                }
+
                 supabaseClient.auth.signOut()
                 authRepository.logout()
-                _isProcessing.value = false
+                _isDeleting.value = false
                 onComplete()
             } catch (e: Exception) {
                 Log.e(TAG, "Delete account failed", e)
-                _isProcessing.value = false
+                _isDeleting.value = false
                 _message.value = "Failed to delete account. Please try again."
             }
         }

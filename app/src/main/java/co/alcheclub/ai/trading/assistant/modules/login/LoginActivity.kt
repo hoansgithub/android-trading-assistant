@@ -4,20 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import co.alcheclub.ai.trading.assistant.MainActivity
 import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
+import co.alcheclub.ai.trading.assistant.core.viewModelFactory
 import co.alcheclub.ai.trading.assistant.di.AppModule
 import co.alcheclub.ai.trading.assistant.modules.onboarding.OnboardingActivity
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 
 class LoginActivity : AppCompatActivity() {
 
-    private val viewModel by lazy {
-        LoginViewModel(AppModule.authRepository)
+    private val viewModel: LoginViewModel by viewModels {
+        viewModelFactory { LoginViewModel(AppModule.authRepository) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
