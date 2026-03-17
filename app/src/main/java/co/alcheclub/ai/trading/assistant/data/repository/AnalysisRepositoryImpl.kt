@@ -12,6 +12,7 @@ import co.alcheclub.ai.trading.assistant.domain.model.TakeProfit
 import co.alcheclub.ai.trading.assistant.domain.model.TradingSignal
 import co.alcheclub.ai.trading.assistant.domain.repository.AnalysisRepository
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -58,7 +59,14 @@ class AnalysisRepositoryImpl(
 
     override suspend fun saveAnalysis(analysis: Analysis, marketData: MarketData, strategy: Strategy?): Result<Analysis> {
         return try {
-            val dto = buildInsertDto(analysis, marketData, strategy)
+            // Refresh session and use auth.uid() directly for RLS compliance
+            try { supabaseClient.auth.refreshCurrentSession() } catch (_: Exception) {}
+            val session = supabaseClient.auth.currentSessionOrNull()
+                ?: return Result.failure(Exception("No active session — cannot save analysis"))
+            val authUid = UUID.fromString(session.user?.id ?: return Result.failure(Exception("No user in session")))
+            Log.d(TAG, "Saving analysis: auth.uid=$authUid, passed userId=${analysis.userId}")
+
+            val dto = buildInsertDto(analysis.copy(userId = authUid), marketData, strategy)
 
             val response = supabaseClient.postgrest[TABLE]
                 .insert(dto) { select() }
@@ -71,7 +79,7 @@ class AnalysisRepositoryImpl(
                 try { UUID.fromString(it) } catch (_: Exception) { null }
             } ?: analysis.id
 
-            Result.success(analysis.copy(id = savedId))
+            Result.success(analysis.copy(id = savedId, userId = authUid))
         } catch (e: Exception) {
             Log.e(TAG, "Save failed", e)
             Result.failure(e)

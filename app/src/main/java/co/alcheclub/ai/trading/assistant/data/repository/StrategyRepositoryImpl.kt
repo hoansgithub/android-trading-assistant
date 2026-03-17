@@ -6,6 +6,7 @@ import co.alcheclub.ai.trading.assistant.domain.model.TradingDirection
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.domain.repository.StrategyRepository
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.json.JsonObject
@@ -50,6 +51,9 @@ class StrategyRepositoryImpl(
 
     override suspend fun saveStrategy(strategy: Strategy, userId: UUID): Result<Strategy> {
         return try {
+            // Ensure session token is fresh before insert (RLS requires valid auth.uid())
+            try { supabaseClient.auth.refreshCurrentSession() } catch (_: Exception) {}
+
             val dto = buildJsonObject {
                 put("id", JsonPrimitive(strategy.id.toString()))
                 put("user_id", JsonPrimitive(userId.toString()))
