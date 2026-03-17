@@ -1,5 +1,8 @@
 package co.alcheclub.ai.trading.assistant.modules.onboarding.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +41,21 @@ fun OnboardingOptionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (isSelected) Emerald else Border
-    val borderWidth = if (isSelected) 2.dp else 1.dp
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) Emerald else Border,
+        animationSpec = tween(200),
+        label = "borderColor"
+    )
+    val borderWidth by animateDpAsState(
+        targetValue = if (isSelected) 2.dp else 1.dp,
+        animationSpec = tween(200),
+        label = "borderWidth"
+    )
+    val radioFillSize by animateDpAsState(
+        targetValue = if (isSelected) 14.dp else 0.dp,
+        animationSpec = tween(200),
+        label = "radioFill"
+    )
 
     Row(
         modifier = modifier
@@ -81,22 +98,22 @@ fun OnboardingOptionCard(
 
         Spacer(modifier = Modifier.size(8.dp))
 
-        // Radio indicator
+        // Radio indicator with animated fill
         Box(
             modifier = Modifier
                 .size(22.dp)
                 .clip(CircleShape)
                 .border(
                     width = if (isSelected) 2.dp else 1.5.dp,
-                    color = if (isSelected) Emerald else Border,
+                    color = borderColor,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
-            if (isSelected) {
+            if (radioFillSize > 0.dp) {
                 Box(
                     modifier = Modifier
-                        .size(14.dp)
+                        .size(radioFillSize)
                         .clip(CircleShape)
                         .background(Emerald)
                 )

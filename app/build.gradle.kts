@@ -8,6 +8,7 @@ plugins {
 
     // Firebase
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 // ============================================
@@ -41,6 +42,12 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"${requireProperty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${requireProperty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${requireProperty("GOOGLE_WEB_CLIENT_ID")}\"")
+
+        // API keys for networking layer
+        buildConfigField("String", "GEMINI_API_KEYS", "\"${requireProperty("GEMINI_API_KEYS")}\"")
+        buildConfigField("String", "BINANCE_API_KEYS", "\"${requireProperty("BINANCE_API_KEYS")}\"")
+        buildConfigField("String", "ALPACA_API_KEY_ID", "\"${requireProperty("ALPACA_API_KEY_ID")}\"")
+        buildConfigField("String", "ALPACA_API_SECRET_KEY", "\"${requireProperty("ALPACA_API_SECRET_KEY")}\"")
     }
 
     buildTypes {
@@ -92,12 +99,18 @@ dependencies {
     implementation(libs.supabase.auth.kt)
     implementation(libs.supabase.postgrest.kt)
     implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
     implementation(libs.kotlinx.serialization.json)
 
     // Google Sign-In (Credential Manager)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.google.googleid)
+
+    // Play In-App Review
+    implementation(libs.play.review)
 
     // Testing
     testImplementation(libs.junit)

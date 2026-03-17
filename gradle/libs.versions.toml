@@ -35,6 +35,11 @@ googleid = "1.1.1"
 kotlinxSerializationJson = "1.7.3"
 
 # ============================================
+# PLAY SERVICES
+# ============================================
+playReview = "2.0.2"
+
+# ============================================
 # TESTING
 # ============================================
 junit = "4.13.2"
@@ -79,10 +84,18 @@ supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "s
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorAndroid" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorAndroid" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorAndroid" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorAndroid" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 google-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+
+# ============================================
+# PLAY SERVICES
+# ============================================
+play-review = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 
 # ============================================
 # TESTING

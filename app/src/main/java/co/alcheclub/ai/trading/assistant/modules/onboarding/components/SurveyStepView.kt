@@ -1,5 +1,10 @@
 package co.alcheclub.ai.trading.assistant.modules.onboarding.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,21 +14,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.domain.model.ExperienceLevel
@@ -33,6 +38,7 @@ import co.alcheclub.ai.trading.assistant.ui.theme.BgPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
 import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
+import kotlinx.coroutines.delay
 
 @Composable
 fun <T> SurveyStepView(
@@ -48,6 +54,16 @@ fun <T> SurveyStepView(
     modifier: Modifier = Modifier
 ) {
     val dimens = AppDimens.current
+
+    // Staggered appearance animation state
+    var visibleCount by remember(question) { mutableStateOf(0) }
+    LaunchedEffect(question) {
+        visibleCount = 0
+        for (i in options.indices) {
+            delay(80L)
+            visibleCount = i + 1
+        }
+    }
 
     Column(
         modifier = modifier
@@ -72,17 +88,25 @@ fun <T> SurveyStepView(
             verticalArrangement = Arrangement.spacedBy(dimens.spaceMd),
             contentPadding = PaddingValues(bottom = dimens.spaceLg)
         ) {
-            items(
+            itemsIndexed(
                 items = options,
-                key = { optionId(it) }
-            ) { option ->
-                OnboardingOptionCard(
-                    emoji = optionEmoji(option),
-                    title = optionTitle(option),
-                    subtitle = optionSubtitle(option),
-                    isSelected = option == selectedOption,
-                    onClick = { onOptionSelected(option) }
-                )
+                key = { _, item -> optionId(item) }
+            ) { index, option ->
+                AnimatedVisibility(
+                    visible = index < visibleCount,
+                    enter = fadeIn(tween(250)) + slideInVertically(
+                        animationSpec = tween(300),
+                        initialOffsetY = { it / 3 }
+                    )
+                ) {
+                    OnboardingOptionCard(
+                        emoji = optionEmoji(option),
+                        title = optionTitle(option),
+                        subtitle = optionSubtitle(option),
+                        isSelected = option == selectedOption,
+                        onClick = { onOptionSelected(option) }
+                    )
+                }
             }
         }
 

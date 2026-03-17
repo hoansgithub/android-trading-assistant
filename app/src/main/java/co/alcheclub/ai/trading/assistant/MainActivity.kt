@@ -1,21 +1,19 @@
 package co.alcheclub.ai.trading.assistant
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
+import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
+import co.alcheclub.ai.trading.assistant.di.AppModule
+import co.alcheclub.ai.trading.assistant.modules.main.MainScreen
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
-import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
+import kotlinx.coroutines.launch
 
 /**
  * MainActivity - Main App Content
@@ -34,45 +32,23 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
 
-        // Guard: redirect to RootActivity if onboarding not complete
-        // TODO: Check onboarding status from repository
-        // if (!onboardingRepository.isOnboardingCompleted()) {
-        //     startActivity(Intent(this, RootActivity::class.java))
-        //     finish()
-        //     return
-        // }
-
         setContent {
             AlphaProfitTheme {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                        // TODO: Replace with AppNavigation composable
-                        val dimens = AppDimens.current
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(dimens.spaceLg)
-                            ) {
-                                Text(
-                                    text = "Alpha Profit AI",
-                                    style = MaterialTheme.typography.displaySmall,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Text(
-                                    text = "Home Screen",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    MainScreen(
+                        onLogout = { performLogout() }
+                    )
                 }
             }
+        }
+    }
+
+    private fun performLogout() {
+        lifecycleScope.launch {
+            AppModule.authRepository.signOut()
+            startActivity(Intent(this@MainActivity, RootActivity::class.java))
+            applyFadeTransition()
+            finish()
         }
     }
 }

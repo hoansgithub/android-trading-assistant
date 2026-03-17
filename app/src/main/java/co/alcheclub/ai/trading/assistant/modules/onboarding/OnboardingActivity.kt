@@ -45,7 +45,10 @@ import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 class OnboardingActivity : AppCompatActivity() {
 
     private val viewModel by lazy {
-        OnboardingViewModel(AppModule.onboardingRepository)
+        OnboardingViewModel(
+            onboardingRepository = AppModule.onboardingRepository,
+            analyzeChartUseCase = AppModule.createAnalyzeChartUseCase()
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +65,7 @@ class OnboardingActivity : AppCompatActivity() {
 
                     OnboardingScreen(
                         viewModel = viewModel,
+                        activity = this@OnboardingActivity,
                         onComplete = { navigateToMain() }
                     )
 
