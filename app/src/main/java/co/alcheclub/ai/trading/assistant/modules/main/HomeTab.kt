@@ -104,6 +104,8 @@ fun HomeTab(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isLoadingMore by viewModel.isLoadingMore.collectAsStateWithLifecycle()
+    val canLoadMore by viewModel.canLoadMore.collectAsStateWithLifecycle()
     val isAnalyzing by viewModel.isAnalyzing.collectAsStateWithLifecycle()
     val analyzingProgress by viewModel.analyzingProgress.collectAsStateWithLifecycle()
     val analysisError by viewModel.analysisError.collectAsStateWithLifecycle()
@@ -247,6 +249,15 @@ fun HomeTab(
                                 onClick = { selectedAnalysis = analysis },
                                 onDelete = { analysisToDelete = analysis }
                             )
+                        }
+                        // Load more trigger + shimmer
+                        if (canLoadMore) {
+                            item {
+                                LaunchedEffect(Unit) { viewModel.loadMore() }
+                                if (isLoadingMore) {
+                                    co.alcheclub.ai.trading.assistant.modules.main.components.ShimmerLoadingItem()
+                                }
+                            }
                         }
                         item { Spacer(Modifier.height(80.dp)) }
                     }

@@ -133,7 +133,7 @@ class ProfileViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Delete account failed", e)
                 _isDeleting.value = false
-                _message.value = "Failed to delete account. Please try again."
+                _message.value = "We couldn't delete your account right now. Please check your connection and try again."
             }
         }
     }

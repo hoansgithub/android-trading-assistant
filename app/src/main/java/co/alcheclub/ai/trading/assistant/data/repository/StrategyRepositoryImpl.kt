@@ -31,13 +31,13 @@ class StrategyRepositoryImpl(
         private const val TABLE = "strategies"
     }
 
-    override suspend fun fetchStrategies(userId: UUID): Result<List<Strategy>> {
+    override suspend fun fetchStrategies(userId: UUID, offset: Int, limit: Int): Result<List<Strategy>> {
         return try {
-            // RLS handles user filtering via auth.uid() — explicit filter as safety net
+            // RLS handles user filtering via auth.uid()
             val response = supabaseClient.postgrest[TABLE]
                 .select {
-                    filter { eq("user_id", userId.toString()) }
                     order("created_at", Order.DESCENDING)
+                    range(offset.toLong(), (offset + limit - 1).toLong())
                 }
 
             val rows = response.decodeList<JsonObject>()

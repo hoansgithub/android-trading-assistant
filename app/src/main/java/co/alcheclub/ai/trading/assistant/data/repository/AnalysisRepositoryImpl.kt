@@ -39,14 +39,13 @@ class AnalysisRepositoryImpl(
         private const val TABLE = "analyses"
     }
 
-    override suspend fun fetchAnalyses(userId: UUID): Result<List<Analysis>> {
+    override suspend fun fetchAnalyses(userId: UUID, offset: Int, limit: Int): Result<List<Analysis>> {
         return try {
-
+            // RLS handles user filtering via auth.uid()
             val response = supabaseClient.postgrest[TABLE]
                 .select {
-                    filter { eq("user_id", userId.toString()) }
                     order("analyzed_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
-                    limit(50)
+                    range(offset.toLong(), (offset + limit - 1).toLong())
                 }
 
             val rows = response.decodeList<JsonObject>()

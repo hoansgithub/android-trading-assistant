@@ -31,6 +31,7 @@ class HomeViewModel(
 
     companion object {
         private const val TAG = "HomeVM"
+        private const val PAGE_SIZE = 20
     }
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -38,6 +39,12 @@ class HomeViewModel(
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    private val _isLoadingMore = MutableStateFlow(false)
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
+
+    private val _canLoadMore = MutableStateFlow(true)
+    val canLoadMore: StateFlow<Boolean> = _canLoadMore.asStateFlow()
 
     // New analysis flow
     private val _isAnalyzing = MutableStateFlow(false)
@@ -60,41 +67,46 @@ class HomeViewModel(
     val selectedStrategy: StateFlow<Strategy?> = _selectedStrategy.asStateFlow()
 
     private var pendingImageData: ByteArray? = null
-
     private var hasLoaded = false
+    private var allAnalyses = mutableListOf<Analysis>()
 
     fun onViewAppear() {
         if (!hasLoaded) {
             hasLoaded = true
-            loadAnalyses()
+            loadFirstPage()
         }
     }
 
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            loadAnalysesInternal()
+            allAnalyses.clear()
+            _canLoadMore.value = true
+            loadPage(0)
             _isRefreshing.value = false
+        }
+    }
+
+    fun loadMore() {
+        if (_isLoadingMore.value || !_canLoadMore.value) return
+        viewModelScope.launch {
+            _isLoadingMore.value = true
+            loadPage(allAnalyses.size)
+            _isLoadingMore.value = false
         }
     }
 
     fun deleteAnalysis(analysisId: java.util.UUID) {
         viewModelScope.launch {
             analysisRepository.deleteAnalysis(analysisId).onSuccess {
-                val currentState = _uiState.value
-                if (currentState is HomeUiState.Loaded) {
-                    val updated = currentState.analyses.filter { it.id != analysisId }
-                    _uiState.value = if (updated.isEmpty()) HomeUiState.Empty else HomeUiState.Loaded(updated)
-                }
+                allAnalyses.removeAll { it.id == analysisId }
+                _uiState.value = if (allAnalyses.isEmpty()) HomeUiState.Empty else HomeUiState.Loaded(allAnalyses.toList())
             }.onFailure { e ->
                 Log.e(TAG, "Delete failed", e)
             }
         }
     }
 
-    /**
-     * Step 1: Image captured → load strategies → show picker.
-     */
     fun onImageCaptured(imageData: ByteArray) {
         pendingImageData = imageData
         viewModelScope.launch {
@@ -122,9 +134,6 @@ class HomeViewModel(
         pendingImageData = null
     }
 
-    /**
-     * Step 2: User picked strategy → start analysis.
-     */
     fun startAnalysisWithStrategy() {
         val imageData = pendingImageData ?: return
         val strategy = _selectedStrategy.value
@@ -156,10 +165,10 @@ class HomeViewModel(
             _analyzingProgress.value = 1f
             pendingImageData = null
 
-            result.onSuccess { analysis ->
-                Log.d(TAG, "Analysis complete: ${analysis.signal} ${analysis.confidenceScore}%")
+            result.onSuccess {
+                Log.d(TAG, "Analysis complete: ${it.signal} ${it.confidenceScore}%")
                 _isAnalyzing.value = false
-                loadAnalysesInternal()
+                refresh()
             }.onFailure { error ->
                 Log.e(TAG, "Analysis failed: ${error.message}", error)
                 _analysisError.value = mapAnalysisError(error)
@@ -172,20 +181,28 @@ class HomeViewModel(
         _analysisError.value = null
     }
 
-    private fun loadAnalyses() {
+    private fun loadFirstPage() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
-            loadAnalysesInternal()
+            allAnalyses.clear()
+            _canLoadMore.value = true
+            loadPage(0)
         }
     }
 
-    private suspend fun loadAnalysesInternal() {
+    private suspend fun loadPage(offset: Int) {
         val userId = authRepository.getCurrentUserId()
-        analysisRepository.fetchAnalyses(userId).onSuccess { analyses ->
-            _uiState.value = if (analyses.isEmpty()) HomeUiState.Empty else HomeUiState.Loaded(analyses)
+        analysisRepository.fetchAnalyses(userId, offset, PAGE_SIZE).onSuccess { page ->
+            Log.d(TAG, "Fetched ${page.size} analyses (offset=$offset)")
+            if (offset == 0) allAnalyses.clear()
+            allAnalyses.addAll(page)
+            _canLoadMore.value = page.size >= PAGE_SIZE
+            _uiState.value = if (allAnalyses.isEmpty()) HomeUiState.Empty else HomeUiState.Loaded(allAnalyses.toList())
         }.onFailure { e ->
             Log.e(TAG, "Load analyses failed", e)
-            _uiState.value = HomeUiState.Error(e.message ?: "Failed to load analyses")
+            if (offset == 0) {
+                _uiState.value = HomeUiState.Error("Couldn't load your analyses. Check your connection and pull to refresh.")
+            }
         }
     }
 

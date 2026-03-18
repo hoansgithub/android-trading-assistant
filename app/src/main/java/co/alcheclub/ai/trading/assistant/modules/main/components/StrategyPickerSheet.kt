@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -74,20 +76,24 @@ fun StrategyPickerContent(
                 modifier = Modifier.padding(vertical = 24.dp)
             )
         } else {
-            strategies.forEach { strategy ->
-                val isSelected = selectedStrategy?.id == strategy.id
-                StrategyOptionCard(
-                    strategy = strategy,
-                    isSelected = isSelected,
-                    onClick = { onSelect(strategy) }
-                )
-                Spacer(Modifier.height(12.dp))
+            LazyColumn(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(strategies, key = { it.id }) { strategy ->
+                    val isSelected = selectedStrategy?.id == strategy.id
+                    StrategyOptionCard(
+                        strategy = strategy,
+                        isSelected = isSelected,
+                        onClick = { onSelect(strategy) }
+                    )
+                }
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // Start Analysis button
+        // Start Analysis button (pinned at bottom)
         Button(
             onClick = onStart,
             enabled = selectedStrategy != null,

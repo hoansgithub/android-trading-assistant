@@ -1,6 +1,7 @@
 package co.alcheclub.ai.trading.assistant.modules.main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
@@ -27,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -52,9 +57,11 @@ import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
+import co.alcheclub.ai.trading.assistant.ui.theme.BgPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.Caution
 import co.alcheclub.ai.trading.assistant.ui.theme.Danger
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
+import co.alcheclub.ai.trading.assistant.ui.theme.EmeraldDark
 import co.alcheclub.ai.trading.assistant.ui.theme.TextMuted
 import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
@@ -69,8 +76,13 @@ fun StrategyTab(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+    val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle()
+    val isLoadingMore by viewModel.isLoadingMore.collectAsStateWithLifecycle()
+    val canLoadMore by viewModel.canLoadMore.collectAsStateWithLifecycle()
     val dimens = AppDimens.current
     var strategyToDelete by remember { mutableStateOf<Strategy?>(null) }
+    var selectedStrategy by remember { mutableStateOf<Strategy?>(null) }
+    var showBuilder by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
@@ -110,10 +122,42 @@ fun StrategyTab(
         )
     }
 
+    // Strategy detail screen
+    if (selectedStrategy != null) {
+        val strategyCount = (uiState as? StrategyUiState.Loaded)?.strategies?.size ?: 0
+        StrategyDetailScreen(
+            strategy = selectedStrategy!!,
+            onBack = { selectedStrategy = null },
+            onDuplicate = {
+                viewModel.duplicateStrategy(selectedStrategy!!)
+                selectedStrategy = null
+            },
+            onDelete = {
+                viewModel.deleteStrategy(selectedStrategy!!.id)
+                selectedStrategy = null
+            },
+            canDelete = strategyCount > 1
+        )
+        return
+    }
+
+    // Strategy builder screen
+    if (showBuilder) {
+        StrategyBuilderScreen(
+            onDismiss = { showBuilder = false },
+            onCreate = { strategy ->
+                viewModel.createStrategy(strategy)
+                showBuilder = false
+            }
+        )
+        return
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         when (val state = uiState) {
             is StrategyUiState.Loading -> {
@@ -132,8 +176,18 @@ fun StrategyTab(
                     items(state.strategies, key = { it.id }) { strategy ->
                         StrategyCard(
                             strategy = strategy,
+                            onClick = { selectedStrategy = strategy },
+                            onDuplicate = { viewModel.duplicateStrategy(strategy) },
                             onDelete = { strategyToDelete = strategy }
                         )
+                    }
+                    if (canLoadMore) {
+                        item {
+                            LaunchedEffect(Unit) { viewModel.loadMore() }
+                            if (isLoadingMore) {
+                                co.alcheclub.ai.trading.assistant.modules.main.components.ShimmerLoadingItem()
+                            }
+                        }
                     }
                     item { Spacer(Modifier.height(80.dp)) }
                 }
@@ -163,6 +217,21 @@ fun StrategyTab(
             }
         }
     }
+
+    // FAB
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(20.dp)
+            .size(56.dp)
+            .clip(CircleShape)
+            .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Emerald, EmeraldDark)))
+            .clickable { showBuilder = true },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(Icons.Default.Add, "New Strategy", Modifier.size(28.dp), tint = Color.White)
+    }
+    } // Close outer Box
 }
 
 @Composable
@@ -203,6 +272,8 @@ private fun EmptyStrategiesView() {
 @Composable
 private fun StrategyCard(
     strategy: Strategy,
+    onClick: () -> Unit = {},
+    onDuplicate: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
     val dimens = AppDimens.current
@@ -219,6 +290,7 @@ private fun StrategyCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(BgCard)
+            .clickable(onClick = onClick)
             .padding(dimens.spaceLg)
     ) {
         // Header: Icon + Name + Style + Preset badge
@@ -283,6 +355,12 @@ private fun StrategyCard(
                     Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
                 }
                 DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Duplicate", fontFamily = PoppinsFontFamily) },
+                        onClick = { showCardMenu = false; onDuplicate() },
+                        leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(18.dp)) }
+                    )
+                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Delete", fontFamily = PoppinsFontFamily, color = Danger) },
                         onClick = { showCardMenu = false; onDelete() },
