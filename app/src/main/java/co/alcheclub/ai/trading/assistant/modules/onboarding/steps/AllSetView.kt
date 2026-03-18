@@ -59,6 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
+import co.alcheclub.ai.trading.assistant.modules.main.components.ChartImageGuideOverlay
+import co.alcheclub.ai.trading.assistant.modules.main.components.isChartGuideDisabled
 import co.alcheclub.ai.trading.assistant.domain.model.MockStrategy
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
@@ -86,6 +88,7 @@ fun AllSetView(
     )
 
     var showMenu by remember { mutableStateOf(false) }
+    var showChartGuide by remember { mutableStateOf(false) }
 
     // Stable file path for camera capture — survives activity recreation.
     // Uses fixed filename since only one capture is active at a time.
@@ -220,7 +223,13 @@ fun AllSetView(
 
             // Button at bottom
             Button(
-                onClick = { showMenu = !showMenu },
+                onClick = {
+                    if (!isChartGuideDisabled(context)) {
+                        showChartGuide = true
+                    } else {
+                        showMenu = !showMenu
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -354,6 +363,19 @@ fun AllSetView(
                 }
             }
         }
+
+        // Layer 4: Chart image quality guide overlay
+        ChartImageGuideOverlay(
+            isVisible = showChartGuide,
+            onDismiss = {
+                showChartGuide = false
+                showMenu = true
+            },
+            onDontShowAgain = {
+                showChartGuide = false
+                showMenu = true
+            }
+        )
     }
 }
 
