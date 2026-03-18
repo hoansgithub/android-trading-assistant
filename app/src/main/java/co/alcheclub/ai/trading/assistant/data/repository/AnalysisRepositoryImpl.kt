@@ -41,6 +41,7 @@ class AnalysisRepositoryImpl(
 
     override suspend fun fetchAnalyses(userId: UUID): Result<List<Analysis>> {
         return try {
+
             val response = supabaseClient.postgrest[TABLE]
                 .select {
                     filter { eq("user_id", userId.toString()) }
@@ -49,7 +50,11 @@ class AnalysisRepositoryImpl(
                 }
 
             val rows = response.decodeList<JsonObject>()
-            val analyses = rows.mapNotNull { mapRowToDomain(it) }
+            Log.d(TAG, "Fetched ${rows.size} rows from Supabase")
+            val analyses = rows.mapNotNull { row ->
+                mapRowToDomain(row).also { if (it == null) Log.w(TAG, "Dropped row: ${row["id"]}") }
+            }
+            Log.d(TAG, "Mapped ${analyses.size}/${rows.size} analyses successfully")
             Result.success(analyses)
         } catch (e: Exception) {
             Log.e(TAG, "Fetch failed", e)
@@ -60,7 +65,7 @@ class AnalysisRepositoryImpl(
     override suspend fun saveAnalysis(analysis: Analysis, marketData: MarketData, strategy: Strategy?): Result<Analysis> {
         return try {
             // Refresh session and use auth.uid() directly for RLS compliance
-            try { supabaseClient.auth.refreshCurrentSession() } catch (_: Exception) {}
+
             val session = supabaseClient.auth.currentSessionOrNull()
                 ?: return Result.failure(Exception("No active session — cannot save analysis"))
             val authUid = UUID.fromString(session.user?.id ?: return Result.failure(Exception("No user in session")))

@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
+import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.repository.AnalysisRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
+import co.alcheclub.ai.trading.assistant.domain.repository.StrategyRepository
 import co.alcheclub.ai.trading.assistant.domain.usecase.AnalyzeChartUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ sealed class HomeUiState {
 class HomeViewModel(
     private val analysisRepository: AnalysisRepository,
     private val authRepository: AuthRepository,
+    private val strategyRepository: StrategyRepository,
     private val analyzeChartUseCase: AnalyzeChartUseCase
 ) : ViewModel() {
 
@@ -36,7 +39,7 @@ class HomeViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    // New analysis flow state
+    // New analysis flow
     private val _isAnalyzing = MutableStateFlow(false)
     val isAnalyzing: StateFlow<Boolean> = _isAnalyzing.asStateFlow()
 
@@ -45,6 +48,18 @@ class HomeViewModel(
 
     private val _analysisError = MutableStateFlow<String?>(null)
     val analysisError: StateFlow<String?> = _analysisError.asStateFlow()
+
+    // Strategy picker
+    private val _showStrategyPicker = MutableStateFlow(false)
+    val showStrategyPicker: StateFlow<Boolean> = _showStrategyPicker.asStateFlow()
+
+    private val _strategies = MutableStateFlow<List<Strategy>>(emptyList())
+    val strategies: StateFlow<List<Strategy>> = _strategies.asStateFlow()
+
+    private val _selectedStrategy = MutableStateFlow<Strategy?>(null)
+    val selectedStrategy: StateFlow<Strategy?> = _selectedStrategy.asStateFlow()
+
+    private var pendingImageData: ByteArray? = null
 
     private var hasLoaded = false
 
@@ -78,10 +93,43 @@ class HomeViewModel(
     }
 
     /**
-     * Start new analysis from home screen FAB.
-     * Same pipeline as onboarding but without strategy context.
+     * Step 1: Image captured → load strategies → show picker.
      */
     fun onImageCaptured(imageData: ByteArray) {
+        pendingImageData = imageData
+        viewModelScope.launch {
+            val userId = authRepository.getCurrentUserId()
+            Log.d(TAG, "Loading strategies for userId=$userId")
+            strategyRepository.fetchStrategies(userId).onSuccess { list ->
+                Log.d(TAG, "Loaded ${list.size} strategies")
+                _strategies.value = list
+                _selectedStrategy.value = list.firstOrNull()
+            }.onFailure { e ->
+                Log.e(TAG, "Failed to load strategies", e)
+                _strategies.value = emptyList()
+                _selectedStrategy.value = null
+            }
+            _showStrategyPicker.value = true
+        }
+    }
+
+    fun selectStrategy(strategy: Strategy) {
+        _selectedStrategy.value = strategy
+    }
+
+    fun dismissStrategyPicker() {
+        _showStrategyPicker.value = false
+        pendingImageData = null
+    }
+
+    /**
+     * Step 2: User picked strategy → start analysis.
+     */
+    fun startAnalysisWithStrategy() {
+        val imageData = pendingImageData ?: return
+        val strategy = _selectedStrategy.value
+        _showStrategyPicker.value = false
+
         viewModelScope.launch {
             _isAnalyzing.value = true
             _analyzingProgress.value = 0f
@@ -100,16 +148,17 @@ class HomeViewModel(
             val userId = authRepository.getCurrentUserId()
             val result = analyzeChartUseCase.execute(
                 imageData = imageData,
-                userId = userId
+                userId = userId,
+                strategy = strategy
             )
 
             progressJob.cancel()
             _analyzingProgress.value = 1f
+            pendingImageData = null
 
             result.onSuccess { analysis ->
                 Log.d(TAG, "Analysis complete: ${analysis.signal} ${analysis.confidenceScore}%")
                 _isAnalyzing.value = false
-                // Refresh list to show new analysis
                 loadAnalysesInternal()
             }.onFailure { error ->
                 Log.e(TAG, "Analysis failed: ${error.message}", error)

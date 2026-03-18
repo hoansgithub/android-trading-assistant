@@ -33,7 +33,14 @@ class StrategyViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     private var hasLoaded = false
+
+    /** Current strategy count from loaded state */
+    private val strategyCount: Int
+        get() = (_uiState.value as? StrategyUiState.Loaded)?.strategies?.size ?: 0
 
     fun onViewAppear() {
         if (!hasLoaded) {
@@ -50,7 +57,19 @@ class StrategyViewModel(
         }
     }
 
+    fun dismissError() {
+        _errorMessage.value = null
+    }
+
+    /**
+     * Delete strategy with "can't delete last" guard matching iOS.
+     */
     fun deleteStrategy(strategyId: java.util.UUID) {
+        if (strategyCount <= 1) {
+            _errorMessage.value = "You must have at least one strategy. Create a new strategy before deleting this one."
+            return
+        }
+
         viewModelScope.launch {
             strategyRepository.deleteStrategy(strategyId).onSuccess {
                 val currentState = _uiState.value
@@ -60,6 +79,7 @@ class StrategyViewModel(
                 }
             }.onFailure { e ->
                 Log.e(TAG, "Delete strategy failed", e)
+                _errorMessage.value = "Failed to delete strategy. Please try again."
             }
         }
     }

@@ -6,7 +6,6 @@ import co.alcheclub.ai.trading.assistant.domain.model.TradingDirection
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.domain.repository.StrategyRepository
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.json.JsonObject
@@ -34,6 +33,7 @@ class StrategyRepositoryImpl(
 
     override suspend fun fetchStrategies(userId: UUID): Result<List<Strategy>> {
         return try {
+            // RLS handles user filtering via auth.uid() — explicit filter as safety net
             val response = supabaseClient.postgrest[TABLE]
                 .select {
                     filter { eq("user_id", userId.toString()) }
@@ -41,7 +41,10 @@ class StrategyRepositoryImpl(
                 }
 
             val rows = response.decodeList<JsonObject>()
-            val strategies = rows.mapNotNull { mapRowToDomain(it) }
+            Log.d(TAG, "Fetched ${rows.size} strategy rows for user=$userId")
+            val strategies = rows.mapNotNull { row ->
+                mapRowToDomain(row).also { if (it == null) Log.w(TAG, "Dropped strategy row: ${row["id"]}") }
+            }
             Result.success(strategies)
         } catch (e: Exception) {
             Log.e(TAG, "Fetch strategies failed", e)
@@ -51,9 +54,6 @@ class StrategyRepositoryImpl(
 
     override suspend fun saveStrategy(strategy: Strategy, userId: UUID): Result<Strategy> {
         return try {
-            // Ensure session token is fresh before insert (RLS requires valid auth.uid())
-            try { supabaseClient.auth.refreshCurrentSession() } catch (_: Exception) {}
-
             val dto = buildJsonObject {
                 put("id", JsonPrimitive(strategy.id.toString()))
                 put("user_id", JsonPrimitive(userId.toString()))

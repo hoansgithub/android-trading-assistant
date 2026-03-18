@@ -54,11 +54,22 @@ class AnalyzeChartUseCase(
         }
         Log.d(TAG, "Market data: ${marketData.klines.size} klines, last price: ${marketData.ticker24h.lastPrice}")
 
-        // Step 3: AI Analysis
-        Log.d(TAG, "Step 3: Running AI analysis...")
+        // Step 3: AI Analysis (with strategy context if available)
+        Log.d(TAG, "Step 3: Running AI analysis${strategy?.let { " with strategy '${it.name}'" } ?: ""}...")
+        val strategyContext = strategy?.let {
+            co.alcheclub.ai.trading.assistant.data.remote.service.StrategyContext(
+                name = it.name,
+                style = it.style.displayName,
+                timeframe = it.timeframe,
+                direction = it.direction.displayName,
+                riskPerTrade = it.riskPerTradeFormatted,
+                stopLossMethod = it.stopLossDescription.ifEmpty { null }
+            )
+        }
         val aiResult = geminiTextService.analyzeMarketData(
             marketData = marketData,
-            assetName = null
+            assetName = recognition.asset,
+            strategy = strategyContext
         ).getOrElse { e ->
             Log.e(TAG, "AI analysis failed", e)
             return Result.failure(e)

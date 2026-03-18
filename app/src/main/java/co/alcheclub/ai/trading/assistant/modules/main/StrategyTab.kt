@@ -17,18 +17,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +53,9 @@ import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
 import co.alcheclub.ai.trading.assistant.ui.theme.Caution
+import co.alcheclub.ai.trading.assistant.ui.theme.Danger
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
+import co.alcheclub.ai.trading.assistant.ui.theme.TextMuted
 import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
@@ -56,9 +68,47 @@ fun StrategyTab(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     val dimens = AppDimens.current
+    var strategyToDelete by remember { mutableStateOf<Strategy?>(null) }
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
+
+    // Delete confirmation dialog
+    if (strategyToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { strategyToDelete = null },
+            title = { Text("Delete Strategy?", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text("This strategy will be permanently deleted. Existing analyses will keep their strategy snapshot.", fontFamily = PoppinsFontFamily) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteStrategy(strategyToDelete!!.id)
+                    strategyToDelete = null
+                }) {
+                    Text("Delete", color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { strategyToDelete = null }) {
+                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                }
+            }
+        )
+    }
+
+    // Error message dialog (e.g. can't delete last strategy)
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissError() },
+            title = { Text("Notice", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(errorMessage ?: "", fontFamily = PoppinsFontFamily) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.dismissError() }) {
+                    Text("OK", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -80,7 +130,10 @@ fun StrategyTab(
                     verticalArrangement = Arrangement.spacedBy(dimens.spaceMd)
                 ) {
                     items(state.strategies, key = { it.id }) { strategy ->
-                        StrategyCard(strategy = strategy)
+                        StrategyCard(
+                            strategy = strategy,
+                            onDelete = { strategyToDelete = strategy }
+                        )
                     }
                     item { Spacer(Modifier.height(80.dp)) }
                 }
@@ -148,7 +201,10 @@ private fun EmptyStrategiesView() {
 }
 
 @Composable
-private fun StrategyCard(strategy: Strategy) {
+private fun StrategyCard(
+    strategy: Strategy,
+    onDelete: () -> Unit = {}
+) {
     val dimens = AppDimens.current
     val styleIcon = when (strategy.style) {
         TradingStyle.SCALPING -> "\u26A1"
@@ -218,6 +274,21 @@ private fun StrategyCard(strategy: Strategy) {
                     fontSize = 12.sp,
                     color = TextSecondary
                 )
+            }
+
+            // Three-dot menu
+            Box {
+                var showCardMenu by remember { mutableStateOf(false) }
+                IconButton(onClick = { showCardMenu = true }, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
+                }
+                DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Delete", fontFamily = PoppinsFontFamily, color = Danger) },
+                        onClick = { showCardMenu = false; onDelete() },
+                        leadingIcon = { Icon(Icons.Default.Delete, null, tint = Danger, modifier = Modifier.size(18.dp)) }
+                    )
+                }
             }
         }
 

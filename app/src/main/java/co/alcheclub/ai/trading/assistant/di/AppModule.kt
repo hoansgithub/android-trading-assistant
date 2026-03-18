@@ -182,6 +182,7 @@ object AppModule {
         return HomeViewModel(
             analysisRepository = analysisRepository,
             authRepository = authRepository,
+            strategyRepository = strategyRepository,
             analyzeChartUseCase = createAnalyzeChartUseCase()
         )
     }

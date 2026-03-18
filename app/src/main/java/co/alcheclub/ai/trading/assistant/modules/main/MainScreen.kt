@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -53,6 +54,8 @@ fun MainScreen(
 ) {
     val dimens = AppDimens.current
     var selectedTab by remember { mutableIntStateOf(0) }
+    val isAnalyzing by homeViewModel.isAnalyzing.collectAsStateWithLifecycle()
+    val analyzingProgress by homeViewModel.analyzingProgress.collectAsStateWithLifecycle()
 
     val tabs = remember {
         listOf(
@@ -62,6 +65,7 @@ fun MainScreen(
         )
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -135,4 +139,18 @@ fun MainScreen(
             }
         }
     }
+
+    // Analyzing overlay — covers entire screen including tab bar
+    if (isAnalyzing) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgPrimary)
+        ) {
+            co.alcheclub.ai.trading.assistant.modules.onboarding.steps.AnalyzingChartView(
+                progress = analyzingProgress
+            )
+        }
+    }
+    } // Close outer Box
 }

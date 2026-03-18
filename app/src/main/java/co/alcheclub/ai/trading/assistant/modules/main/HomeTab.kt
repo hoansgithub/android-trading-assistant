@@ -107,6 +107,9 @@ fun HomeTab(
     val isAnalyzing by viewModel.isAnalyzing.collectAsStateWithLifecycle()
     val analyzingProgress by viewModel.analyzingProgress.collectAsStateWithLifecycle()
     val analysisError by viewModel.analysisError.collectAsStateWithLifecycle()
+    val showStrategyPicker by viewModel.showStrategyPicker.collectAsStateWithLifecycle()
+    val strategies by viewModel.strategies.collectAsStateWithLifecycle()
+    val selectedStrategy by viewModel.selectedStrategy.collectAsStateWithLifecycle()
     val dimens = AppDimens.current
     val context = LocalContext.current
 
@@ -146,13 +149,24 @@ fun HomeTab(
         }
     }
 
-    // Analyzing overlay
-    if (isAnalyzing) {
-        Box(Modifier.fillMaxSize().background(BgPrimary)) {
-            AnalyzingChartView(progress = analyzingProgress)
+    // Strategy picker bottom sheet
+    if (showStrategyPicker) {
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { viewModel.dismissStrategyPicker() },
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = BgPrimary
+        ) {
+            co.alcheclub.ai.trading.assistant.modules.main.components.StrategyPickerContent(
+                strategies = strategies,
+                selectedStrategy = selectedStrategy,
+                onSelect = { viewModel.selectStrategy(it) },
+                onStart = { viewModel.startAnalysisWithStrategy() }
+            )
         }
-        return
     }
+
+    // Analyzing overlay is handled at MainScreen level to cover tab bar
+    if (isAnalyzing) return
 
     // Error screen
     if (analysisError != null) {
