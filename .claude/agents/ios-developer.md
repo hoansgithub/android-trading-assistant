@@ -442,6 +442,13 @@ private extension FeatureViewModel {
 
 ---
 
+## Database Query Safety (CRITICAL)
+
+- NEVER fetch all records (assume billions of rows)
+- ALL queries MUST have LIMIT / pagination
+- ALL filtering in query (WHERE/predicate), NOT client-side .filter{}
+- ALL sorting in query (ORDER BY/sortDescriptors), NOT client-side .sorted{}
+
 ## Checklist Before Completing
 
 - [ ] All closures have `[weak self]`

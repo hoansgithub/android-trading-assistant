@@ -63,6 +63,13 @@ grep -rn "LaunchedEffect.*uiState" --include="*.kt"
 
 # Android: Wrong state collection
 grep -rn "collectAsState()" --include="*.kt" | grep -v "collectAsStateWithLifecycle"
+
+# DATABASE: Unbounded fetches (CRITICAL)
+grep -rn 'SELECT \*.*FROM' --include="*.kt" | grep -vi "limit\|where"
+grep -rn "\.select()" --include="*.kt" | grep -v "range\|limit"
+# DATABASE: Client-side filtering/sorting
+grep -rn "\.filter\s*{" --include="*.kt"
+grep -rn "\.sortedBy\s*{" --include="*.kt"
 ```
 
 ### Step 3: Verify Each Changed File
@@ -171,6 +178,14 @@ For each file, check ALL applicable items from the checklists below.
 - Clean separation of concerns
 
 ---
+
+## Database Queries (CRITICAL)
+
+- [ ] Every query has LIMIT / pagination
+- [ ] ALL filtering in query (WHERE), NOT client-side .filter{}
+- [ ] ALL sorting in query (ORDER BY), NOT client-side .sortedBy{}
+- [ ] No unbounded fetches (SELECT * without LIMIT)
+- [ ] Supabase queries include .range()
 
 ## Verification Checklist
 

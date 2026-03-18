@@ -5,7 +5,17 @@
       "Bash(git commit:*)",
       "Bash(mkdir:*)",
       "Bash(cp:*)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(python3:*)",
+      "Bash(adb devices:*)",
+      "Bash(/Users/hoanl/Library/Android/sdk/platform-tools/adb logcat:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(git checkout:*)",
+      "Bash(sort -k2)",
+      "Bash(grep:*)"
     ]
   }
 }

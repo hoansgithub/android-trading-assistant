@@ -57,6 +57,13 @@ co.alcheclub.ai.trading.assistant/
 ## Activity Flow
 RootActivity (launcher + splash) → LoginActivity → OnboardingActivity → MainActivity
 
+### Database Query Safety (CRITICAL) @.claude/rules/database-safety.md
+- NEVER fetch all records from a database (assume billions of rows)
+- ALL queries MUST have LIMIT / pagination
+- ALL filtering MUST be in the query (WHERE clauses), NOT client-side
+- ALL sorting MUST be in the query (ORDER BY), NOT client-side
+- Applies to: Room, Supabase, Firebase, SQL, MongoDB, etc.
+
 ## Build
 - compileSdk: 36, minSdk: 28, targetSdk: 36
 - Java 17 compatibility
