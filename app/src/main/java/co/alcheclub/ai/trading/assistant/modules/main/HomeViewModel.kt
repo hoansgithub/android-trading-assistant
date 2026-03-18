@@ -80,7 +80,6 @@ class HomeViewModel(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            allAnalyses.clear()
             _canLoadMore.value = true
             loadPage(0)
             _isRefreshing.value = false
@@ -184,7 +183,6 @@ class HomeViewModel(
     private fun loadFirstPage() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
-            allAnalyses.clear()
             _canLoadMore.value = true
             loadPage(0)
         }

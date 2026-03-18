@@ -61,7 +61,6 @@ class StrategyViewModel(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            allStrategies.clear()
             _canLoadMore.value = true
             loadPage(0)
             _isRefreshing.value = false
@@ -135,10 +134,23 @@ class StrategyViewModel(
         }
     }
 
+    fun updateStrategy(strategy: Strategy) {
+        viewModelScope.launch {
+            _isProcessing.value = true
+            strategyRepository.updateStrategy(strategy).onSuccess {
+                Log.d(TAG, "Strategy updated: ${strategy.name}")
+                refresh()
+            }.onFailure { e ->
+                Log.e(TAG, "Update strategy failed", e)
+                _errorMessage.value = "Couldn't update your strategy. Please check your connection and try again."
+            }
+            _isProcessing.value = false
+        }
+    }
+
     private fun loadFirstPage() {
         viewModelScope.launch {
             _uiState.value = StrategyUiState.Loading
-            allStrategies.clear()
             _canLoadMore.value = true
             loadPage(0)
         }

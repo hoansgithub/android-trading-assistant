@@ -9,9 +9,7 @@ import co.alcheclub.ai.trading.assistant.domain.model.AssetType
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.repository.AnalysisRepository
 import co.alcheclub.ai.trading.assistant.domain.repository.MarketDataRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
@@ -101,8 +99,9 @@ class AnalyzeChartUseCase(
             analysis // Return unsaved analysis
         }
 
-        // Step 6: Upload image (fire-and-forget)
-        CoroutineScope(Dispatchers.IO).launch {
+        // Step 6: Upload image in background (non-blocking, non-fatal)
+        // Uses withContext instead of leaked CoroutineScope — runs within caller's scope
+        kotlinx.coroutines.withContext(Dispatchers.IO) {
             try {
                 val urlResult = imageUploadService.uploadImage(imageData)
                 urlResult.onSuccess { url ->

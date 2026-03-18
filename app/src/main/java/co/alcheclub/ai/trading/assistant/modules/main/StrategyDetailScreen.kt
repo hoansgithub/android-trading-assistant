@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Speed
@@ -61,6 +62,7 @@ import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
 fun StrategyDetailScreen(
     strategy: Strategy,
     onBack: () -> Unit,
+    onEdit: () -> Unit,
     onDuplicate: () -> Unit,
     onDelete: () -> Unit,
     canDelete: Boolean
@@ -110,6 +112,11 @@ fun StrategyDetailScreen(
                     Icon(Icons.Default.MoreVert, "More", tint = TextSecondary)
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Edit", fontFamily = PoppinsFontFamily) },
+                        onClick = { showMenu = false; onEdit() },
+                        leadingIcon = { Icon(Icons.Default.Edit, null, Modifier.size(18.dp)) }
+                    )
                     DropdownMenuItem(
                         text = { Text("Duplicate", fontFamily = PoppinsFontFamily) },
                         onClick = { showMenu = false; onDuplicate() },

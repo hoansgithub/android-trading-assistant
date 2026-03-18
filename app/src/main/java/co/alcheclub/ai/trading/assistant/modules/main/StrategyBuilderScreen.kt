@@ -57,21 +57,24 @@ import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
 
 /**
- * Strategy creation screen matching iOS StrategyBuilderView.
- * Basic fields: name, style, timeframe, direction, risk.
+ * Strategy create/edit screen matching iOS StrategyBuilderView.
+ * When existingStrategy is provided, pre-fills form for editing.
  */
 @Composable
 fun StrategyBuilderScreen(
+    existingStrategy: Strategy? = null,
     onDismiss: () -> Unit,
-    onCreate: (Strategy) -> Unit
+    onSave: (Strategy) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var selectedStyle by remember { mutableStateOf(TradingStyle.SWING_TRADING) }
-    var selectedTimeframe by remember { mutableStateOf("4h") }
-    var selectedDirection by remember { mutableStateOf(TradingDirection.BOTH) }
-    var riskPercent by remember { mutableDoubleStateOf(2.0) }
-    var maxPositions by remember { mutableIntStateOf(3) }
+    val isEditing = existingStrategy != null
+
+    var name by remember { mutableStateOf(existingStrategy?.name ?: "") }
+    var description by remember { mutableStateOf(existingStrategy?.description ?: "") }
+    var selectedStyle by remember { mutableStateOf(existingStrategy?.style ?: TradingStyle.SWING_TRADING) }
+    var selectedTimeframe by remember { mutableStateOf(existingStrategy?.timeframe ?: "4h") }
+    var selectedDirection by remember { mutableStateOf(existingStrategy?.direction ?: TradingDirection.BOTH) }
+    var riskPercent by remember { mutableDoubleStateOf(existingStrategy?.riskPerTradePercent ?: 2.0) }
+    var maxPositions by remember { mutableIntStateOf(existingStrategy?.maxOpenPositions ?: 3) }
 
     val isValid = name.isNotBlank()
     val focusManager = LocalFocusManager.current
@@ -90,8 +93,11 @@ fun StrategyBuilderScreen(
             IconButton(onClick = onDismiss) {
                 Icon(Icons.Default.Close, "Close", tint = TextSecondary)
             }
-            Text("New Strategy", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp, color = TextPrimary, modifier = Modifier.weight(1f))
+            Text(
+                if (isEditing) "Edit Strategy" else "New Strategy",
+                fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp, color = TextPrimary, modifier = Modifier.weight(1f)
+            )
         }
 
         Column(
@@ -191,7 +197,7 @@ fun StrategyBuilderScreen(
         // Create button
         Button(
             onClick = {
-                val strategy = Strategy(
+                val strategy = (existingStrategy ?: Strategy(name = "")).copy(
                     name = name.trim(),
                     description = description.trim(),
                     style = selectedStyle,
@@ -199,11 +205,11 @@ fun StrategyBuilderScreen(
                     direction = selectedDirection,
                     riskPerTradePercent = riskPercent,
                     maxOpenPositions = maxPositions,
-                    isPreset = false,
+                    isPreset = if (isEditing) existingStrategy!!.isPreset else false,
                     isActive = true,
-                    isDefault = false
+                    isDefault = if (isEditing) existingStrategy!!.isDefault else false
                 )
-                onCreate(strategy)
+                onSave(strategy)
             },
             enabled = isValid,
             modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
@@ -215,7 +221,10 @@ fun StrategyBuilderScreen(
                 disabledContentColor = TextMuted
             )
         ) {
-            Text("Create Strategy", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
+            Text(
+                if (isEditing) "Save Changes" else "Create Strategy",
+                fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 17.sp
+            )
         }
     }
 }

@@ -112,6 +112,29 @@ class StrategyRepositoryImpl(
         }
     }
 
+    override suspend fun updateStrategy(strategy: Strategy): Result<Strategy> {
+        return try {
+            val dto = buildJsonObject {
+                put("name", JsonPrimitive(strategy.name))
+                put("description", JsonPrimitive(strategy.description))
+                put("style", JsonPrimitive(strategy.style.value))
+                put("timeframe", JsonPrimitive(strategy.timeframe))
+                put("direction", JsonPrimitive(strategy.direction.value))
+                put("risk_per_trade_percent", JsonPrimitive(strategy.riskPerTradePercent))
+                put("is_active", JsonPrimitive(strategy.isActive))
+            }
+
+            supabaseClient.postgrest[TABLE]
+                .update(dto) { filter { eq("id", strategy.id.toString()) } }
+
+            Log.d(TAG, "Strategy updated: ${strategy.name} (${strategy.id})")
+            Result.success(strategy)
+        } catch (e: Exception) {
+            Log.e(TAG, "Update strategy failed", e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun deleteStrategy(strategyId: UUID): Result<Unit> {
         return try {
             supabaseClient.postgrest[TABLE]

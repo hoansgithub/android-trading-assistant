@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
@@ -83,6 +84,7 @@ fun StrategyTab(
     var strategyToDelete by remember { mutableStateOf<Strategy?>(null) }
     var selectedStrategy by remember { mutableStateOf<Strategy?>(null) }
     var showBuilder by remember { mutableStateOf(false) }
+    var editingStrategy by remember { mutableStateOf<Strategy?>(null) }
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
@@ -128,6 +130,10 @@ fun StrategyTab(
         StrategyDetailScreen(
             strategy = selectedStrategy!!,
             onBack = { selectedStrategy = null },
+            onEdit = {
+                editingStrategy = selectedStrategy
+                selectedStrategy = null
+            },
             onDuplicate = {
                 viewModel.duplicateStrategy(selectedStrategy!!)
                 selectedStrategy = null
@@ -141,13 +147,19 @@ fun StrategyTab(
         return
     }
 
-    // Strategy builder screen
-    if (showBuilder) {
+    // Strategy builder screen (create or edit)
+    if (showBuilder || editingStrategy != null) {
         StrategyBuilderScreen(
-            onDismiss = { showBuilder = false },
-            onCreate = { strategy ->
-                viewModel.createStrategy(strategy)
+            existingStrategy = editingStrategy,
+            onDismiss = { showBuilder = false; editingStrategy = null },
+            onSave = { strategy ->
+                if (editingStrategy != null) {
+                    viewModel.updateStrategy(strategy)
+                } else {
+                    viewModel.createStrategy(strategy)
+                }
                 showBuilder = false
+                editingStrategy = null
             }
         )
         return
@@ -177,6 +189,7 @@ fun StrategyTab(
                         StrategyCard(
                             strategy = strategy,
                             onClick = { selectedStrategy = strategy },
+                            onEdit = { editingStrategy = strategy },
                             onDuplicate = { viewModel.duplicateStrategy(strategy) },
                             onDelete = { strategyToDelete = strategy }
                         )
@@ -273,6 +286,7 @@ private fun EmptyStrategiesView() {
 private fun StrategyCard(
     strategy: Strategy,
     onClick: () -> Unit = {},
+    onEdit: () -> Unit = {},
     onDuplicate: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
@@ -355,6 +369,11 @@ private fun StrategyCard(
                     Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
                 }
                 DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Edit", fontFamily = PoppinsFontFamily) },
+                        onClick = { showCardMenu = false; onEdit() },
+                        leadingIcon = { Icon(Icons.Default.Edit, null, modifier = Modifier.size(18.dp)) }
+                    )
                     DropdownMenuItem(
                         text = { Text("Duplicate", fontFamily = PoppinsFontFamily) },
                         onClick = { showCardMenu = false; onDuplicate() },
