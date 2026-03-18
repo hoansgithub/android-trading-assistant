@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
+import co.alcheclub.ai.trading.assistant.core.compose.TrackScreenView
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingDirection
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
@@ -69,6 +71,8 @@ fun StrategyBuilderScreen(
     onSave: (Strategy) -> Unit
 ) {
     val isEditing = existingStrategy != null
+
+    TrackScreenView(AnalyticsEvent.Screen.STRATEGY_BUILDER, "StrategyBuilderScreen")
 
     var name by remember { mutableStateOf(existingStrategy?.name ?: "") }
     var description by remember { mutableStateOf(existingStrategy?.description ?: "") }

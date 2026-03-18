@@ -54,6 +54,9 @@ import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.BuildConfig
 import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.core.AppLinks
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
+import co.alcheclub.ai.trading.assistant.core.compose.TrackScreenView
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
 import co.alcheclub.ai.trading.assistant.ui.theme.Caution
@@ -79,6 +82,8 @@ fun ProfileTab(
     val isProcessing by viewModel.isProcessing.collectAsStateWithLifecycle()
     val isDeleting by viewModel.isDeleting.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
+
+    TrackScreenView(AnalyticsEvent.Screen.PROFILE, "ProfileTab")
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
@@ -186,6 +191,7 @@ fun ProfileTab(
                     iconColor = TextSecondary,
                     title = stringResource(R.string.profile_terms),
                     onClick = {
+                        Analytics.track(AnalyticsEvent.PROFILE_ACTION, mapOf(AnalyticsEvent.Param.VALUE to "terms"))
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppLinks.TERMS_OF_SERVICE)))
                     }
                 )
@@ -194,6 +200,7 @@ fun ProfileTab(
                     iconColor = TextSecondary,
                     title = stringResource(R.string.profile_privacy),
                     onClick = {
+                        Analytics.track(AnalyticsEvent.PROFILE_ACTION, mapOf(AnalyticsEvent.Param.VALUE to "privacy"))
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppLinks.PRIVACY_POLICY)))
                     }
                 )
@@ -202,6 +209,7 @@ fun ProfileTab(
                     iconColor = Caution,
                     title = stringResource(R.string.profile_rate),
                     onClick = {
+                        Analytics.track(AnalyticsEvent.PROFILE_ACTION, mapOf(AnalyticsEvent.Param.VALUE to "rate"))
                         try {
                             context.startActivity(Intent(Intent.ACTION_VIEW,
                                 Uri.parse("market://details?id=${context.packageName}")))
@@ -216,6 +224,7 @@ fun ProfileTab(
                     iconColor = TextSecondary,
                     title = stringResource(R.string.profile_feedback),
                     onClick = {
+                        Analytics.track(AnalyticsEvent.PROFILE_ACTION, mapOf(AnalyticsEvent.Param.VALUE to "feedback"))
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:")
                             putExtra(Intent.EXTRA_EMAIL, arrayOf("support@alcheclub.co"))

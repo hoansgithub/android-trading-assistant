@@ -74,6 +74,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.alcheclub.ai.trading.assistant.R
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
+import co.alcheclub.ai.trading.assistant.core.compose.TrackScreenView
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.RiskLevel
 import co.alcheclub.ai.trading.assistant.domain.model.TradingSignal
@@ -122,6 +124,8 @@ fun HomeTab(
     var selectedAnalysis by remember { mutableStateOf<Analysis?>(null) }
     var analysisToDelete by remember { mutableStateOf<Analysis?>(null) }
 
+    TrackScreenView(AnalyticsEvent.Screen.HOME, "HomeTab")
+
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
     // Camera setup
@@ -136,7 +140,7 @@ fun HomeTab(
     ) { success ->
         if (success) {
             val bytes = context.contentResolver.openInputStream(cameraImageUri)?.use { it.readBytes() }
-            if (bytes != null && bytes.isNotEmpty()) viewModel.onImageCaptured(bytes)
+            if (bytes != null && bytes.isNotEmpty()) viewModel.onImageCaptured(bytes, "camera")
         }
     }
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -149,7 +153,7 @@ fun HomeTab(
     ) { uri: Uri? ->
         if (uri != null) {
             val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-            if (bytes != null && bytes.isNotEmpty()) viewModel.onImageCaptured(bytes)
+            if (bytes != null && bytes.isNotEmpty()) viewModel.onImageCaptured(bytes, "gallery")
         }
     }
 

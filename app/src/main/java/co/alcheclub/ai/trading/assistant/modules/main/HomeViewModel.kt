@@ -2,6 +2,8 @@ package co.alcheclub.ai.trading.assistant.modules.main
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import androidx.lifecycle.viewModelScope
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
@@ -67,6 +69,7 @@ class HomeViewModel(
     val selectedStrategy: StateFlow<Strategy?> = _selectedStrategy.asStateFlow()
 
     private var pendingImageData: ByteArray? = null
+    private var pendingSource: String = "camera"
     private var hasLoaded = false
     private var allAnalyses = mutableListOf<Analysis>()
 
@@ -97,7 +100,11 @@ class HomeViewModel(
 
     fun deleteAnalysis(analysisId: java.util.UUID) {
         viewModelScope.launch {
+            val symbol = allAnalyses.find { it.id == analysisId }?.assetSymbol
             analysisRepository.deleteAnalysis(analysisId).onSuccess {
+                if (symbol != null) {
+                    Analytics.track(AnalyticsEvent.ANALYSIS_DELETE, mapOf(AnalyticsEvent.Param.ASSET to symbol))
+                }
                 allAnalyses.removeAll { it.id == analysisId }
                 _uiState.value = if (allAnalyses.isEmpty()) HomeUiState.Empty else HomeUiState.Loaded(allAnalyses.toList())
             }.onFailure { e ->
@@ -106,8 +113,9 @@ class HomeViewModel(
         }
     }
 
-    fun onImageCaptured(imageData: ByteArray) {
+    fun onImageCaptured(imageData: ByteArray, source: String = "camera") {
         pendingImageData = imageData
+        pendingSource = source
         viewModelScope.launch {
             val userId = authRepository.getCurrentUserId()
             Log.d(TAG, "Loading strategies for userId=$userId")
@@ -131,12 +139,16 @@ class HomeViewModel(
     fun dismissStrategyPicker() {
         _showStrategyPicker.value = false
         pendingImageData = null
+        pendingSource = "camera"
     }
 
     fun startAnalysisWithStrategy() {
         val imageData = pendingImageData ?: return
         val strategy = _selectedStrategy.value
+        val source = pendingSource
         _showStrategyPicker.value = false
+
+        Analytics.track(AnalyticsEvent.ANALYSIS_START, mapOf(AnalyticsEvent.Param.SOURCE to source))
 
         viewModelScope.launch {
             _isAnalyzing.value = true
@@ -163,9 +175,15 @@ class HomeViewModel(
             progressJob.cancel()
             _analyzingProgress.value = 1f
             pendingImageData = null
+            pendingSource = "camera"
 
-            result.onSuccess {
-                Log.d(TAG, "Analysis complete: ${it.signal} ${it.confidenceScore}%")
+            result.onSuccess { analysis ->
+                Log.d(TAG, "Analysis complete: ${analysis.signal} ${analysis.confidenceScore}%")
+                Analytics.track(AnalyticsEvent.ANALYSIS_COMPLETE, mapOf(
+                    AnalyticsEvent.Param.ASSET to analysis.assetSymbol,
+                    AnalyticsEvent.Param.SIGNAL to analysis.signal.value.lowercase(),
+                    AnalyticsEvent.Param.MODEL to "flash"
+                ))
                 _isAnalyzing.value = false
                 refresh()
             }.onFailure { error ->

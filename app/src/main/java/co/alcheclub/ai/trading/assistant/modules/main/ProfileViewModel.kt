@@ -2,6 +2,8 @@ package co.alcheclub.ai.trading.assistant.modules.main
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import androidx.lifecycle.viewModelScope
 import co.alcheclub.ai.trading.assistant.BuildConfig
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
@@ -93,6 +95,7 @@ class ProfileViewModel(
             _showSignOutDialog.value = false
             _isProcessing.value = true
             authRepository.signOut()
+            Analytics.track(AnalyticsEvent.AUTH_SIGN_OUT)
             _isProcessing.value = false
             onComplete()
         }
@@ -128,6 +131,7 @@ class ProfileViewModel(
 
                 supabaseClient.auth.signOut()
                 authRepository.logout()
+                Analytics.track(AnalyticsEvent.AUTH_DELETE_ACCOUNT)
                 _isDeleting.value = false
                 onComplete()
             } catch (e: Exception) {
@@ -141,7 +145,8 @@ class ProfileViewModel(
     fun restorePurchases() {
         viewModelScope.launch {
             _isProcessing.value = true
-            // TODO: Integrate RevenueCat restore
+            Analytics.track(AnalyticsEvent.PROFILE_ACTION, mapOf(AnalyticsEvent.Param.VALUE to "restore"))
+            // TODO: Integrate RevenueCat restore — track PROFILE_RESTORE with value "success"/"error" after integration
             _isProcessing.value = false
             _message.value = "No active purchases found."
         }

@@ -3,6 +3,8 @@ package co.alcheclub.ai.trading.assistant.modules.onboarding
 import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import androidx.lifecycle.viewModelScope
 import com.google.android.play.core.review.ReviewManagerFactory
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
@@ -116,6 +118,7 @@ class OnboardingViewModel(
 
     fun goToNextStep() {
         if (!canAdvance) return
+        trackSurveyStep(_currentStep.value)
         val steps = OnboardingStep.entries
         val currentIndex = steps.indexOf(_currentStep.value)
         if (currentIndex < steps.size - 1) {
@@ -125,6 +128,21 @@ class OnboardingViewModel(
                 startProcessing()
             }
         }
+    }
+
+    private fun trackSurveyStep(step: OnboardingStep) {
+        val (stepIndex, value) = when (step) {
+            OnboardingStep.EXPERIENCE_LEVEL -> "0" to (_selectedExperience.value?.name?.lowercase() ?: return)
+            OnboardingStep.TIME_AVAILABILITY -> "1" to (_selectedTime.value?.name?.lowercase() ?: return)
+            OnboardingStep.RISK_COMFORT -> "2" to (_selectedRisk.value?.name?.lowercase() ?: return)
+            OnboardingStep.PRIMARY_GOAL -> "3" to (_selectedGoal.value?.name?.lowercase() ?: return)
+            OnboardingStep.LEARNING_STYLE -> "4" to (_selectedLearning.value?.name?.lowercase() ?: return)
+            else -> return
+        }
+        Analytics.track(AnalyticsEvent.ONBOARDING_STEP, mapOf(
+            AnalyticsEvent.Param.STEP to stepIndex,
+            AnalyticsEvent.Param.VALUE to value
+        ))
     }
 
     fun goToPreviousStep() {
@@ -212,6 +230,7 @@ class OnboardingViewModel(
             _isAnalyzing.value = true
             _analyzingProgress.value = 0f
             _analysisError.value = null
+            Analytics.track(AnalyticsEvent.ANALYSIS_START, mapOf(AnalyticsEvent.Param.SOURCE to "camera"))
 
             // Retry strategy save if it failed during processing
             if (!strategySavedToDB && savedStrategy == null) {
@@ -259,6 +278,11 @@ class OnboardingViewModel(
 
             result.onSuccess { analysis ->
                 Log.d(TAG, "Analysis complete: ${analysis.signal} ${analysis.confidenceScore}%")
+                Analytics.track(AnalyticsEvent.ANALYSIS_COMPLETE, mapOf(
+                    AnalyticsEvent.Param.ASSET to analysis.assetSymbol,
+                    AnalyticsEvent.Param.SIGNAL to analysis.signal.value.lowercase(),
+                    AnalyticsEvent.Param.MODEL to "flash"
+                ))
                 _analysisResult.value = analysis
                 delay(300)
                 completeOnboarding()
@@ -300,6 +324,12 @@ class OnboardingViewModel(
 
     fun completeOnboarding() {
         viewModelScope.launch {
+            val style = _generatedStrategy.value?.let { parseTradingStyle(it.style).value } ?: "swing_trading"
+            val timeframe = _generatedStrategy.value?.let { parseTimeframe(it.timeframe) } ?: "4h"
+            Analytics.track(AnalyticsEvent.ONBOARDING_COMPLETE, mapOf(
+                AnalyticsEvent.Param.STYLE to style,
+                AnalyticsEvent.Param.TIMEFRAME to timeframe
+            ))
             try {
                 val userId = authRepository.getCurrentUserId()
                 onboardingRepository.completeOnboarding(userId)

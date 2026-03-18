@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import co.alcheclub.ai.trading.assistant.ui.theme.Bearish
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
 import co.alcheclub.ai.trading.assistant.ui.theme.BgElevated
@@ -154,7 +156,10 @@ fun ChartImageGuideOverlay(
 
                 // OK button
                 Button(
-                    onClick = onDismiss,
+                    onClick = {
+                        Analytics.track(AnalyticsEvent.CHART_GUIDE, mapOf(AnalyticsEvent.Param.VALUE to "ok"))
+                        onDismiss()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(44.dp),
@@ -177,6 +182,7 @@ fun ChartImageGuideOverlay(
                 // Don't show again button
                 Button(
                     onClick = {
+                        Analytics.track(AnalyticsEvent.CHART_GUIDE, mapOf(AnalyticsEvent.Param.VALUE to "dont_show_again"))
                         disableChartGuide(context)
                         onDontShowAgain()
                     },

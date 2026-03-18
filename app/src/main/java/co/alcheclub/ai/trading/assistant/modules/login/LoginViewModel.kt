@@ -3,6 +3,8 @@ package co.alcheclub.ai.trading.assistant.modules.login
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import co.alcheclub.ai.trading.assistant.domain.model.AuthProvider
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,11 +22,13 @@ class LoginViewModel(
     fun signInWithGoogle(activity: Activity) {
         viewModelScope.launch {
             _state.value = LoginState.Authenticating(AuthProvider.GOOGLE)
+            Analytics.track(AnalyticsEvent.AUTH_START, mapOf(AnalyticsEvent.Param.SOURCE to "google"))
 
             val result = authRepository.signInWithGoogle(activity)
 
             result.fold(
                 onSuccess = {
+                    Analytics.track(AnalyticsEvent.AUTH_SUCCESS, mapOf(AnalyticsEvent.Param.SOURCE to "google"))
                     _state.value = LoginState.Authenticated
                 },
                 onFailure = { error ->
@@ -33,6 +37,10 @@ class LoginViewModel(
                     if (message == "Sign-in was cancelled") {
                         _state.value = LoginState.Idle
                     } else {
+                        Analytics.track(AnalyticsEvent.AUTH_ERROR, mapOf(
+                            AnalyticsEvent.Param.SOURCE to "google",
+                            AnalyticsEvent.Param.ERROR to Analytics.sanitize(message)
+                        ))
                         _state.value = LoginState.Error(message)
                     }
                 }

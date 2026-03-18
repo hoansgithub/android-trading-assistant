@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.core.AppLinks
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
+import co.alcheclub.ai.trading.assistant.core.compose.TrackScreenView
 import co.alcheclub.ai.trading.assistant.domain.model.AuthProvider
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgPrimary
@@ -52,6 +54,8 @@ fun LoginScreen(
     activity: Activity,
     onAuthenticated: () -> Unit
 ) {
+    TrackScreenView(AnalyticsEvent.Screen.LOGIN, "LoginScreen")
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(state) {

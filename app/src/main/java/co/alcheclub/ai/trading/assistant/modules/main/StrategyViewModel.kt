@@ -2,6 +2,8 @@ package co.alcheclub.ai.trading.assistant.modules.main
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import co.alcheclub.ai.trading.assistant.core.analytics.Analytics
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
 import androidx.lifecycle.viewModelScope
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.repository.AuthRepository
@@ -88,6 +90,7 @@ class StrategyViewModel(
         viewModelScope.launch {
             _isProcessing.value = true
             strategyRepository.deleteStrategy(strategyId).onSuccess {
+                Analytics.track(AnalyticsEvent.STRATEGY_DELETE)
                 allStrategies.removeAll { it.id == strategyId }
                 _uiState.value = if (allStrategies.isEmpty()) StrategyUiState.Empty else StrategyUiState.Loaded(allStrategies.toList())
             }.onFailure { e ->
@@ -109,6 +112,7 @@ class StrategyViewModel(
             )
             val userId = authRepository.getCurrentUserId()
             strategyRepository.saveStrategy(copy, userId).onSuccess {
+                Analytics.track(AnalyticsEvent.STRATEGY_DUPLICATE)
                 Log.d(TAG, "Strategy duplicated: ${copy.name}")
                 refresh()
             }.onFailure { e ->
@@ -124,6 +128,11 @@ class StrategyViewModel(
             _isProcessing.value = true
             val userId = authRepository.getCurrentUserId()
             strategyRepository.saveStrategy(strategy, userId).onSuccess {
+                Analytics.track(AnalyticsEvent.STRATEGY_CREATE, mapOf(
+                    AnalyticsEvent.Param.STYLE to strategy.style.value,
+                    AnalyticsEvent.Param.TIMEFRAME to strategy.timeframe,
+                    AnalyticsEvent.Param.VALUE to strategy.direction.value
+                ))
                 Log.d(TAG, "Strategy created: ${strategy.name}")
                 refresh()
             }.onFailure { e ->
@@ -138,6 +147,7 @@ class StrategyViewModel(
         viewModelScope.launch {
             _isProcessing.value = true
             strategyRepository.updateStrategy(strategy).onSuccess {
+                Analytics.track(AnalyticsEvent.STRATEGY_EDIT)
                 Log.d(TAG, "Strategy updated: ${strategy.name}")
                 refresh()
             }.onFailure { e ->

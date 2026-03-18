@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
+import co.alcheclub.ai.trading.assistant.core.analytics.AnalyticsEvent
+import co.alcheclub.ai.trading.assistant.core.compose.TrackScreenView
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
@@ -87,6 +89,8 @@ fun StrategyTab(
     var selectedStrategy by remember { mutableStateOf<Strategy?>(null) }
     var showBuilder by remember { mutableStateOf(false) }
     var editingStrategy by remember { mutableStateOf<Strategy?>(null) }
+
+    TrackScreenView(AnalyticsEvent.Screen.STRATEGY, "StrategyTab")
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
