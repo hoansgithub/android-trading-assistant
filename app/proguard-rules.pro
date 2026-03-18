@@ -1,27 +1,53 @@
 # Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Preserve line numbers for crash reporting
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
-# Credential Manager (required for Google Sign-In)
+# ============================================
+# Credential Manager (Google Sign-In)
+# ============================================
 -if class androidx.credentials.CredentialManager
 -keep class androidx.credentials.playservices.** {
   *;
 }
+
+# ============================================
+# Kotlin Serialization
+# ============================================
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
+
+-keepclassmembers class kotlinx.serialization.json.** {
+    *** Companion;
+}
+-keepclasseswithmembers class kotlinx.serialization.json.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Keep @Serializable classes and their serializers
+-keep,includedescriptorclasses class co.alcheclub.ai.trading.assistant.**$$serializer { *; }
+-keepclassmembers class co.alcheclub.ai.trading.assistant.** {
+    *** Companion;
+}
+-keepclasseswithmembers class co.alcheclub.ai.trading.assistant.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# ============================================
+# Supabase
+# ============================================
+-keep class io.github.jan.supabase.** { *; }
+-keep class io.github.jan.supabase.postgrest.** { *; }
+-keep class io.github.jan.supabase.auth.** { *; }
+
+# ============================================
+# Ktor
+# ============================================
+-keep class io.ktor.** { *; }
+-dontwarn io.ktor.**
+
+# ============================================
+# Google Identity (GoogleIdTokenCredential)
+# ============================================
+-keep class com.google.android.libraries.identity.googleid.** { *; }

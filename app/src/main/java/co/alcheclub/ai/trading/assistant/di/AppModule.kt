@@ -25,12 +25,11 @@ import co.alcheclub.ai.trading.assistant.modules.main.HomeViewModel
 import co.alcheclub.ai.trading.assistant.modules.main.ProfileViewModel
 import co.alcheclub.ai.trading.assistant.modules.main.StrategyViewModel
 import co.alcheclub.ai.trading.assistant.domain.usecase.AnalyzeChartUseCase
-import co.alcheclub.ai.trading.assistant.domain.usecase.FetchAnalysesUseCase
 import co.alcheclub.ai.trading.assistant.domain.usecase.RecognizeChartUseCase
 
 object AppModule {
 
-    private var preferencesManager: PreferencesManager? = null
+    private lateinit var preferencesManager: PreferencesManager
 
     fun init(context: Context) {
         preferencesManager = PreferencesManager(context)
@@ -40,14 +39,14 @@ object AppModule {
 
     val onboardingRepository: OnboardingRepository by lazy {
         OnboardingRepositoryImpl(
-            preferencesManager = preferencesManager!!,
+            preferencesManager = preferencesManager,
             supabaseClient = SupabaseProvider.client
         )
     }
 
     val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(
-            preferencesManager = preferencesManager!!,
+            preferencesManager = preferencesManager,
             supabaseClient = SupabaseProvider.client
         )
     }
@@ -168,10 +167,6 @@ object AppModule {
             analysisRepository = analysisRepository,
             imageUploadService = imageUploadService
         )
-    }
-
-    fun createFetchAnalysesUseCase(): FetchAnalysesUseCase {
-        return FetchAnalysesUseCase(analysisRepository = analysisRepository)
     }
 
     // endregion
