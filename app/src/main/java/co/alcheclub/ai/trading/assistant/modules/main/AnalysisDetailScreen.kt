@@ -56,7 +56,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.RiskLevel
 import co.alcheclub.ai.trading.assistant.domain.model.TradingSignal
@@ -101,16 +103,16 @@ fun AnalysisDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Analysis", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
-            text = { Text("Are you sure you want to delete this analysis? This action cannot be undone.", fontFamily = PoppinsFontFamily) },
+            title = { Text(stringResource(R.string.analysis_delete_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(stringResource(R.string.analysis_delete_message), fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { showDeleteDialog = false; onDelete() }) {
-                    Text("Delete", color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.delete), color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -136,7 +138,7 @@ fun AnalysisDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TextPrimary)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = TextPrimary)
             }
             Text(
                 text = analysis.assetName ?: analysis.assetSymbol,
@@ -145,17 +147,17 @@ fun AnalysisDetailScreen(
             )
             Box {
                 IconButton(onClick = { showMenu = true }) {
-                    Icon(Icons.Default.MoreVert, "More", tint = TextSecondary)
+                    Icon(Icons.Default.MoreVert, stringResource(R.string.more), tint = TextSecondary)
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text("Disclaimer", fontFamily = PoppinsFontFamily) },
+                        text = { Text(stringResource(R.string.disclaimer), fontFamily = PoppinsFontFamily) },
                         onClick = { showMenu = false; showDisclaimer = true },
                         leadingIcon = { Icon(Icons.Default.Warning, null, modifier = Modifier.size(18.dp)) }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("Delete Analysis", fontFamily = PoppinsFontFamily, color = Danger) },
+                        text = { Text(stringResource(R.string.delete_analysis), fontFamily = PoppinsFontFamily, color = Danger) },
                         onClick = { showMenu = false; showDeleteDialog = true },
                         leadingIcon = { Icon(Icons.Default.Delete, null, tint = Danger, modifier = Modifier.size(18.dp)) }
                     )
@@ -176,7 +178,7 @@ fun AnalysisDetailScreen(
 
             // AI Explanation
             if (analysis.aiExplanation.isNotEmpty()) {
-                SectionCard(icon = Icons.Default.Info, title = "AI Analysis", color = Emerald) {
+                SectionCard(icon = Icons.Default.Info, title = stringResource(R.string.analysis_ai_analysis), color = Emerald) {
                     MarkdownText(
                         text = analysis.aiExplanation,
                         fontSize = 14.sp,
@@ -190,7 +192,7 @@ fun AnalysisDetailScreen(
 
             // Market Context
             if (!analysis.marketContext.isNullOrEmpty()) {
-                SectionCard(icon = Icons.AutoMirrored.Filled.TrendingUp, title = "Market Context", color = Emerald) {
+                SectionCard(icon = Icons.AutoMirrored.Filled.TrendingUp, title = stringResource(R.string.analysis_market_context), color = Emerald) {
                     Text(
                         text = analysis.marketContext,
                         fontFamily = PoppinsFontFamily, fontSize = 14.sp,
@@ -234,7 +236,7 @@ private fun SignalHeroSection(analysis: Analysis, signalColor: Color) {
             }
             Column {
                 Text(analysis.signal.value, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 28.sp, color = TextPrimary)
-                Text("Signal Detected", fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
+                Text(stringResource(R.string.analysis_signal_detected), fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
             }
         }
 
@@ -242,7 +244,7 @@ private fun SignalHeroSection(analysis: Analysis, signalColor: Color) {
 
         // Confidence bar
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Confidence", fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
+            Text(stringResource(R.string.analysis_confidence), fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
             Text("${analysis.confidenceScore}%", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
         }
         Spacer(Modifier.height(6.dp))
@@ -271,21 +273,21 @@ private fun MetadataChip(text: String, color: Color) {
 
 @Composable
 private fun ActionPlanCard(analysis: Analysis, signalColor: Color) {
-    SectionCard(icon = Icons.AutoMirrored.Filled.TrendingUp, title = "Action Plan", color = Emerald) {
-        ActionRow("Current Price", "$${formatPrice(analysis.currentPrice)}", TextSecondary)
+    SectionCard(icon = Icons.AutoMirrored.Filled.TrendingUp, title = stringResource(R.string.analysis_action_plan), color = Emerald) {
+        ActionRow(stringResource(R.string.analysis_current_price), "$${formatPrice(analysis.currentPrice)}", TextSecondary)
 
         if (analysis.actionPlan.entryMin != null && analysis.actionPlan.entryMax != null) {
             ThinDivider()
-            ActionRow("Entry Zone", "$${formatPrice(analysis.actionPlan.entryMin)} - $${formatPrice(analysis.actionPlan.entryMax)}", Emerald)
+            ActionRow(stringResource(R.string.analysis_entry_zone), "$${formatPrice(analysis.actionPlan.entryMin)} - $${formatPrice(analysis.actionPlan.entryMax)}", Emerald)
         }
 
         ThinDivider()
-        ActionRow("Stop Loss", "$${formatPrice(analysis.actionPlan.stopLoss)}", Bearish)
+        ActionRow(stringResource(R.string.analysis_stop_loss), "$${formatPrice(analysis.actionPlan.stopLoss)}", Bearish)
 
         analysis.actionPlan.takeProfits.forEach { tp ->
             ThinDivider()
             val subtitle = tp.riskRewardRatio?.let { "R:R ${it.setScale(1, java.math.RoundingMode.HALF_UP)}:1" }
-            ActionRow("Take Profit ${tp.level}", "$${formatPrice(tp.price)}", Emerald, subtitle)
+            ActionRow(stringResource(R.string.analysis_take_profit, tp.level), "$${formatPrice(tp.price)}", Emerald, subtitle)
         }
     }
 }
@@ -317,7 +319,7 @@ private fun RiskAssessmentCard(analysis: Analysis) {
         RiskLevel.VERY_HIGH -> Danger
     }
 
-    SectionCard(icon = Icons.Default.Warning, title = "Risk Assessment", color = riskColor) {
+    SectionCard(icon = Icons.Default.Warning, title = stringResource(R.string.analysis_risk_assessment), color = riskColor) {
         // Risk badge
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Text(
@@ -329,7 +331,7 @@ private fun RiskAssessmentCard(analysis: Analysis) {
 
         if (analysis.riskAssessment.factors.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
-            Text("Key Factors", fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
+            Text(stringResource(R.string.analysis_key_factors), fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = TextSecondary)
             Spacer(Modifier.height(4.dp))
             analysis.riskAssessment.factors.forEach { factor ->
                 Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.Top) {
@@ -345,7 +347,7 @@ private fun RiskAssessmentCard(analysis: Analysis) {
             Column(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Warning.copy(alpha = 0.08f)).padding(12.dp)
             ) {
-                Text("Warnings", fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = Warning)
+                Text(stringResource(R.string.analysis_warnings), fontFamily = PoppinsFontFamily, fontSize = 12.sp, color = Warning)
                 Spacer(Modifier.height(4.dp))
                 analysis.riskAssessment.warnings.forEach { warning ->
                     Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.Top) {
@@ -381,18 +383,16 @@ private fun DisclaimerContent(onDone: () -> Unit) {
     ) {
         Icon(Icons.Default.Warning, null, Modifier.size(48.dp), tint = Caution)
         Spacer(Modifier.height(24.dp))
-        Text("Disclaimer", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = TextPrimary)
+        Text(stringResource(R.string.disclaimer), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = TextPrimary)
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "Alpha Profit AI is an AI-powered informational and educational assistant designed to support trading and investment decisions.\n\n" +
-                "It is not a financial advisor and does not guarantee results.\n\n" +
-                "Users are responsible for their own due diligence and are encouraged to consult licensed financial professionals before making any investment decisions.",
+            text = stringResource(R.string.disclaimer_text),
             fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextSecondary,
             textAlign = TextAlign.Center, lineHeight = 22.sp
         )
         Spacer(Modifier.height(24.dp))
         TextButton(onClick = onDone) {
-            Text("Done", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Emerald)
+            Text(stringResource(R.string.done), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Emerald)
         }
     }
 }

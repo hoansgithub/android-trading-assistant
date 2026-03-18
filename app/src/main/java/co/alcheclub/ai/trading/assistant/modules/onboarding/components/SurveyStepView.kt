@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.ExperienceLevel
 import co.alcheclub.ai.trading.assistant.ui.theme.AlphaProfitTheme
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
@@ -125,7 +127,7 @@ fun <T> SurveyStepView(
             )
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.continue_text),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp

@@ -28,7 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
@@ -58,7 +60,7 @@ fun StrategyPickerContent(
             .padding(bottom = 24.dp)
     ) {
         Text(
-            text = "Select a Strategy",
+            text = stringResource(R.string.strategy_select_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
@@ -69,7 +71,7 @@ fun StrategyPickerContent(
 
         if (strategies.isEmpty()) {
             Text(
-                text = "No strategies found. Create one in the Strategy tab.",
+                text = stringResource(R.string.strategy_none_found),
                 fontFamily = PoppinsFontFamily,
                 fontSize = 14.sp,
                 color = TextSecondary,
@@ -107,7 +109,7 @@ fun StrategyPickerContent(
             )
         ) {
             Text(
-                text = "Start Analysis",
+                text = stringResource(R.string.strategy_start_analysis),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp

@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.ui.theme.Bearish
@@ -107,7 +108,7 @@ fun ChartImageGuideOverlay(
             ) {
                 // Title
                 Text(
-                    text = "Tips for Best Results",
+                    text = stringResource(R.string.guide_title),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
@@ -123,13 +124,13 @@ fun ChartImageGuideOverlay(
                 ) {
                     ExampleCard(
                         imageRes = R.drawable.tutorial_chart_good,
-                        label = "Good",
+                        label = stringResource(R.string.guide_good),
                         isGood = true,
                         modifier = Modifier.weight(1f)
                     )
                     ExampleCard(
                         imageRes = R.drawable.tutorial_chart_bad,
-                        label = "Bad",
+                        label = stringResource(R.string.guide_bad),
                         isGood = false,
                         modifier = Modifier.weight(1f)
                     )
@@ -144,9 +145,9 @@ fun ChartImageGuideOverlay(
                         .padding(horizontal = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    TipRow(icon = Icons.Default.Image, text = "Use a clear, high-quality image")
-                    TipRow(icon = Icons.Default.TextFields, text = "Asset name must be visible")
-                    TipRow(icon = Icons.Default.Schedule, text = "Timeframe must be visible")
+                    TipRow(icon = Icons.Default.Image, text = stringResource(R.string.guide_tip_quality))
+                    TipRow(icon = Icons.Default.TextFields, text = stringResource(R.string.guide_tip_asset))
+                    TipRow(icon = Icons.Default.Schedule, text = stringResource(R.string.guide_tip_timeframe))
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -164,7 +165,7 @@ fun ChartImageGuideOverlay(
                     )
                 ) {
                     Text(
-                        text = "OK",
+                        text = stringResource(R.string.ok),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
@@ -189,7 +190,7 @@ fun ChartImageGuideOverlay(
                     )
                 ) {
                     Text(
-                        text = "Don't show again",
+                        text = stringResource(R.string.guide_dont_show),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp

@@ -18,7 +18,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.Border
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
@@ -42,7 +44,7 @@ fun ProcessingView(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Finalizing Your\nAlpha Profit AI Setup...",
+            text = stringResource(R.string.processing_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
@@ -92,7 +94,7 @@ fun ProcessingView(
         Spacer(modifier = Modifier.height(dimens.space2Xl))
 
         Text(
-            text = "We're Customizing Your Alpha Profit AI\nAssistant to Supercharge Your Trading",
+            text = stringResource(R.string.processing_subtitle),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,

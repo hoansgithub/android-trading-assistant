@@ -45,7 +45,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
@@ -73,16 +75,16 @@ fun StrategyDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Strategy?", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
-            text = { Text("This strategy will be permanently deleted. Existing analyses will keep their strategy snapshot.", fontFamily = PoppinsFontFamily) },
+            title = { Text(stringResource(R.string.strategy_delete_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(stringResource(R.string.strategy_delete_message), fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { showDeleteDialog = false; onDelete() }) {
-                    Text("Delete", color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.delete), color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -103,29 +105,29 @@ fun StrategyDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TextPrimary)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = TextPrimary)
             }
             Text(strategy.name, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp, color = TextPrimary, modifier = Modifier.weight(1f))
             Box {
                 IconButton(onClick = { showMenu = true }) {
-                    Icon(Icons.Default.MoreVert, "More", tint = TextSecondary)
+                    Icon(Icons.Default.MoreVert, stringResource(R.string.more), tint = TextSecondary)
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text("Edit", fontFamily = PoppinsFontFamily) },
+                        text = { Text(stringResource(R.string.edit), fontFamily = PoppinsFontFamily) },
                         onClick = { showMenu = false; onEdit() },
                         leadingIcon = { Icon(Icons.Default.Edit, null, Modifier.size(18.dp)) }
                     )
                     DropdownMenuItem(
-                        text = { Text("Duplicate", fontFamily = PoppinsFontFamily) },
+                        text = { Text(stringResource(R.string.duplicate), fontFamily = PoppinsFontFamily) },
                         onClick = { showMenu = false; onDuplicate() },
                         leadingIcon = { Icon(Icons.Default.ContentCopy, null, Modifier.size(18.dp)) }
                     )
                     if (canDelete) {
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Delete", fontFamily = PoppinsFontFamily, color = Danger) },
+                            text = { Text(stringResource(R.string.delete), fontFamily = PoppinsFontFamily, color = Danger) },
                             onClick = { showMenu = false; showDeleteDialog = true },
                             leadingIcon = { Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp), tint = Danger) }
                         )
@@ -161,7 +163,7 @@ fun StrategyDetailScreen(
 
                 if (strategy.isPreset) {
                     Spacer(Modifier.height(8.dp))
-                    Text("PRESET", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 10.sp,
+                    Text(stringResource(R.string.preset), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 10.sp,
                         color = Caution, modifier = Modifier.clip(RoundedCornerShape(4.dp))
                             .background(Caution.copy(alpha = 0.15f)).padding(horizontal = 8.dp, vertical = 3.dp))
                 }
@@ -177,27 +179,27 @@ fun StrategyDetailScreen(
             }
 
             // Entry Rules
-            DetailSection(icon = Icons.Default.Speed, title = "Entry Rules", color = Emerald) {
+            DetailSection(icon = Icons.Default.Speed, title = stringResource(R.string.strategy_entry_rules), color = Emerald) {
                 if (strategy.enabledEntryRuleCount > 0) {
-                    Text("${strategy.enabledEntryRuleCount} active rule${if (strategy.enabledEntryRuleCount > 1) "s" else ""}",
+                    Text(stringResource(R.string.strategy_active_rules, strategy.enabledEntryRuleCount),
                         fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextPrimary)
                 } else {
-                    Text("No entry rules configured", fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextMuted)
+                    Text(stringResource(R.string.strategy_no_entry_rules), fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextMuted)
                 }
             }
 
             // Targets
-            DetailSection(icon = Icons.Default.Shield, title = "Targets", color = Emerald) {
+            DetailSection(icon = Icons.Default.Shield, title = stringResource(R.string.strategy_targets), color = Emerald) {
                 if (strategy.stopLossDescription.isNotEmpty()) {
-                    DetailRow("Stop Loss", strategy.stopLossDescription)
+                    DetailRow(stringResource(R.string.label_stop_loss), strategy.stopLossDescription)
                 }
             }
 
             // Risk Management
-            DetailSection(icon = Icons.Default.Warning, title = "Risk Management", color = Emerald) {
-                DetailRow("Risk per Trade", strategy.riskPerTradeFormatted)
-                DetailRow("Max Positions", strategy.maxOpenPositions.toString())
-                DetailRow("Direction", strategy.direction.displayName)
+            DetailSection(icon = Icons.Default.Warning, title = stringResource(R.string.strategy_risk_management), color = Emerald) {
+                DetailRow(stringResource(R.string.label_risk_per_trade), strategy.riskPerTradeFormatted)
+                DetailRow(stringResource(R.string.label_max_positions), strategy.maxOpenPositions.toString())
+                DetailRow(stringResource(R.string.label_direction), strategy.direction.displayName)
             }
 
             Spacer(Modifier.height(24.dp))

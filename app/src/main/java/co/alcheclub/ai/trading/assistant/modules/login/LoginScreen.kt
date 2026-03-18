@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -120,7 +121,7 @@ private fun BrandingSection() {
         // App icon (large, above name — matching iOS 120x120 with cornerRadius 26)
         Image(
             painter = painterResource(id = R.drawable.ic_splash),
-            contentDescription = "App Icon",
+            contentDescription = stringResource(R.string.app_name),
             modifier = Modifier
                 .size(120.dp)
                 .clip(RoundedCornerShape(26.dp))
@@ -130,7 +131,7 @@ private fun BrandingSection() {
 
         // App name
         Text(
-            text = "Alpha Profit AI",
+            text = stringResource(R.string.app_name),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 28.sp,
@@ -141,7 +142,7 @@ private fun BrandingSection() {
 
         // Welcome text
         Text(
-            text = "Welcome to Alpha Profit AI",
+            text = stringResource(R.string.login_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 32.sp,
@@ -153,7 +154,7 @@ private fun BrandingSection() {
 
         // Subtitle
         Text(
-            text = "Your Trading Copilot",
+            text = stringResource(R.string.login_subtitle),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
@@ -179,7 +180,7 @@ private fun AuthButtonsSection(
     ) {
         // Header text (matching iOS "Please login to get full access from us")
         Text(
-            text = "Please login to get full access from us",
+            text = stringResource(R.string.login_prompt),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 17.sp,
@@ -192,7 +193,7 @@ private fun AuthButtonsSection(
 
         // Continue with Google
         AuthButton(
-            text = "Continue with Google",
+            text = stringResource(R.string.login_continue_google),
             iconResId = R.drawable.ic_google,
             isLoading = isAuthenticating && authenticatingProvider == AuthProvider.GOOGLE,
             enabled = !isAuthenticating,
@@ -281,7 +282,7 @@ private fun LegalSection() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "By continuing, you agree to our",
+            text = stringResource(R.string.login_terms_prefix),
             fontFamily = PoppinsFontFamily,
             fontSize = 12.sp,
             color = Color.White.copy(alpha = 0.5f),
@@ -295,7 +296,7 @@ private fun LegalSection() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Terms of Service",
+                text = stringResource(R.string.login_terms_of_service),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
@@ -306,7 +307,7 @@ private fun LegalSection() {
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = "and",
+                text = stringResource(R.string.login_and),
                 fontFamily = PoppinsFontFamily,
                 fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.5f)
@@ -315,7 +316,7 @@ private fun LegalSection() {
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = "Privacy Policy",
+                text = stringResource(R.string.login_privacy_policy),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,

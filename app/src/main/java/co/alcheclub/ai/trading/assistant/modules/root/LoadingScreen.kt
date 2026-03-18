@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
@@ -46,7 +47,7 @@ fun LoadingScreen(
             // App icon (matching iOS: 120x120, cornerRadius 26)
             Image(
                 painter = painterResource(id = R.drawable.ic_splash),
-                contentDescription = "Alpha Profit AI",
+                contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier
                     .size(120.dp)
                     .clip(RoundedCornerShape(26.dp))
@@ -54,7 +55,7 @@ fun LoadingScreen(
 
             // App name
             Text(
-                text = "Alpha Profit AI",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onBackground
             )

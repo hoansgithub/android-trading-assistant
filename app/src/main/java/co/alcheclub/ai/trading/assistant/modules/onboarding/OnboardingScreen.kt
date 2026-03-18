@@ -42,6 +42,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.di.AppModule
 import co.alcheclub.ai.trading.assistant.domain.model.ExperienceLevel
 import co.alcheclub.ai.trading.assistant.domain.model.LearningStyle
@@ -100,8 +102,8 @@ fun OnboardingScreen(
     if (analysisError != null) {
         val errorText = analysisError ?: ""
         val parts = errorText.split("\n", limit = 2)
-        val title = parts.getOrElse(0) { "Analysis Failed" }
-        val message = parts.getOrElse(1) { "You can try again from the home screen." }
+        val title = parts.getOrElse(0) { stringResource(R.string.error_analysis_failed) }
+        val message = parts.getOrElse(1) { "" }
 
         Box(
             modifier = Modifier
@@ -157,7 +159,7 @@ fun OnboardingScreen(
                     )
                 ) {
                     Text(
-                        text = "Continue",
+                        text = stringResource(R.string.continue_text),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp

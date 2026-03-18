@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -162,7 +163,7 @@ fun AllSetView(
             Spacer(modifier = Modifier.height(dimens.spaceXxl))
 
             Text(
-                text = "You're all set!",
+                text = stringResource(R.string.all_set_title),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 28.sp,
@@ -173,7 +174,7 @@ fun AllSetView(
             Spacer(modifier = Modifier.height(dimens.spaceSm))
 
             Text(
-                text = "We've created the \"${displayStrategy.name}\" strategy for you.",
+                text = stringResource(R.string.all_set_subtitle, displayStrategy.name),
                 fontFamily = PoppinsFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
@@ -192,11 +193,11 @@ fun AllSetView(
                     .padding(dimens.spaceLg),
                 verticalArrangement = Arrangement.spacedBy(dimens.spaceMd)
             ) {
-                StrategyRow(label = "Strategy", value = displayStrategy.name)
-                StrategyRow(label = "Style", value = displayStrategy.style)
-                StrategyRow(label = "Timeframe", value = displayStrategy.timeframe)
-                StrategyRow(label = "Risk/Trade", value = displayStrategy.riskPerTrade)
-                StrategyRow(label = "Direction", value = displayStrategy.direction)
+                StrategyRow(label = stringResource(R.string.all_set_label_strategy), value = displayStrategy.name)
+                StrategyRow(label = stringResource(R.string.all_set_label_style), value = displayStrategy.style)
+                StrategyRow(label = stringResource(R.string.all_set_label_timeframe), value = displayStrategy.timeframe)
+                StrategyRow(label = stringResource(R.string.all_set_label_risk_trade), value = displayStrategy.riskPerTrade)
+                StrategyRow(label = stringResource(R.string.all_set_label_direction), value = displayStrategy.direction)
             }
 
             Spacer(modifier = Modifier.height(dimens.spaceLg))
@@ -204,14 +205,14 @@ fun AllSetView(
             // Footer text (matching iOS)
             Row {
                 Text(
-                    text = "You can change this anytime in the ",
+                    text = stringResource(R.string.all_set_change_hint_prefix),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 13.sp,
                     color = TextSecondary
                 )
                 Text(
-                    text = "Strategy tab.",
+                    text = stringResource(R.string.all_set_change_hint_suffix),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
@@ -240,7 +241,7 @@ fun AllSetView(
                 )
             ) {
                 Text(
-                    text = "Start Your First Analysis",
+                    text = stringResource(R.string.all_set_start_analysis),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
@@ -323,7 +324,7 @@ fun AllSetView(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Take Photo",
+                        text = stringResource(R.string.take_photo),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 15.sp,
@@ -354,7 +355,7 @@ fun AllSetView(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Choose from Gallery",
+                        text = stringResource(R.string.choose_from_gallery),
                         fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 15.sp,

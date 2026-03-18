@@ -68,10 +68,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Analysis
 import co.alcheclub.ai.trading.assistant.domain.model.RiskLevel
 import co.alcheclub.ai.trading.assistant.domain.model.TradingSignal
@@ -177,7 +179,7 @@ fun HomeTab(
             Column(Modifier.padding(dimens.spaceXxl), horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Default.ErrorOutline, null, Modifier.size(64.dp), tint = Warning)
                 Spacer(Modifier.height(dimens.spaceXxl))
-                Text(parts.getOrElse(0) { "Analysis Failed" }, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = TextPrimary, textAlign = TextAlign.Center)
+                Text(parts.getOrElse(0) { stringResource(R.string.error_analysis_failed) }, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = TextPrimary, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(dimens.spaceMd))
                 Text(parts.getOrElse(1) { "" }, fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextSecondary, textAlign = TextAlign.Center, lineHeight = 20.sp)
                 Spacer(Modifier.height(dimens.space2Xl))
@@ -186,7 +188,7 @@ fun HomeTab(
                     modifier = Modifier.fillMaxWidth(0.6f).height(48.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Emerald, contentColor = Color.Black)
-                ) { Text("OK", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
+                ) { Text(stringResource(R.string.ok), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
             }
         }
         return
@@ -209,16 +211,16 @@ fun HomeTab(
     if (analysisToDelete != null) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { analysisToDelete = null },
-            title = { Text("Delete Analysis", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
-            text = { Text("Are you sure you want to delete this analysis? This action cannot be undone.", fontFamily = PoppinsFontFamily) },
+            title = { Text(stringResource(R.string.analysis_delete_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(stringResource(R.string.analysis_delete_message), fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { viewModel.deleteAnalysis(analysisToDelete!!.id); analysisToDelete = null }) {
-                    Text("Delete", color = co.alcheclub.ai.trading.assistant.ui.theme.Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.delete), color = co.alcheclub.ai.trading.assistant.ui.theme.Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { analysisToDelete = null }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -273,7 +275,7 @@ fun HomeTab(
                         Button(
                             onClick = { viewModel.refresh() },
                             colors = ButtonDefaults.buttonColors(containerColor = Emerald, contentColor = Color.Black)
-                        ) { Text("Retry", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) }
+                        ) { Text(stringResource(R.string.retry), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) }
                     }
                 }
             }
@@ -300,7 +302,7 @@ fun HomeTab(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Add, "New Analysis", Modifier.size(28.dp), tint = Color.White)
+            Icon(Icons.Default.Add, stringResource(R.string.new_analysis), Modifier.size(28.dp), tint = Color.White)
         }
 
         // Dark overlay behind menu
@@ -344,7 +346,7 @@ fun HomeTab(
                 ) {
                     Icon(Icons.Default.CameraAlt, null, Modifier.size(22.dp), tint = Emerald)
                     Spacer(Modifier.width(12.dp))
-                    Text("Take Photo", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = TextPrimary)
+                    Text(stringResource(R.string.take_photo), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = TextPrimary)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth().clickable {
@@ -355,7 +357,7 @@ fun HomeTab(
                 ) {
                     Icon(Icons.Default.PhotoLibrary, null, Modifier.size(22.dp), tint = Emerald)
                     Spacer(Modifier.width(12.dp))
-                    Text("Choose from Gallery", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = TextPrimary)
+                    Text(stringResource(R.string.choose_from_gallery), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = TextPrimary)
                 }
             }
         }
@@ -379,9 +381,9 @@ private fun EmptyAnalysesView() {
     ) {
         Icon(Icons.Default.Search, null, Modifier.size(80.dp), tint = TextSecondary.copy(alpha = 0.5f))
         Spacer(Modifier.height(dimens.spaceXxl))
-        Text("No Analyses Yet", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = TextPrimary, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.home_empty_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = TextPrimary, textAlign = TextAlign.Center)
         Spacer(Modifier.height(dimens.spaceSm))
-        Text("Capture a trading chart to get\nAI-powered analysis", fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextSecondary, textAlign = TextAlign.Center, lineHeight = 20.sp)
+        Text(stringResource(R.string.home_empty_subtitle), fontFamily = PoppinsFontFamily, fontSize = 14.sp, color = TextSecondary, textAlign = TextAlign.Center, lineHeight = 20.sp)
     }
 }
 
@@ -424,10 +426,10 @@ private fun AnalysisCard(
         }
         Spacer(Modifier.height(dimens.spaceMd))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            MetricItem("Confidence", "${analysis.confidenceScore}%")
-            MetricItem("Price", formatPrice(analysis.currentPrice))
-            MetricItem("Timeframe", analysis.timeframe.uppercase())
-            MetricItem("Risk", analysis.riskAssessment.level.name.replace("_", " "), riskColor)
+            MetricItem(stringResource(R.string.label_confidence), "${analysis.confidenceScore}%")
+            MetricItem(stringResource(R.string.label_price), formatPrice(analysis.currentPrice))
+            MetricItem(stringResource(R.string.label_timeframe), analysis.timeframe.uppercase())
+            MetricItem(stringResource(R.string.label_risk), analysis.riskAssessment.level.name.replace("_", " "), riskColor)
         }
         Spacer(Modifier.height(dimens.spaceSm))
         Text(relativeTime(analysis.analyzedAt), fontFamily = PoppinsFontFamily, fontSize = 11.sp, color = TextSecondary)
@@ -437,11 +439,11 @@ private fun AnalysisCard(
     Box(Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
         var showCardMenu by remember { mutableStateOf(false) }
         IconButton(onClick = { showCardMenu = true }, modifier = Modifier.size(28.dp)) {
-            Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
+            Icon(Icons.Default.MoreVert, stringResource(R.string.menu), Modifier.size(18.dp), tint = TextMuted)
         }
         DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
             DropdownMenuItem(
-                text = { Text("Delete", fontFamily = PoppinsFontFamily, color = co.alcheclub.ai.trading.assistant.ui.theme.Danger) },
+                text = { Text(stringResource(R.string.delete), fontFamily = PoppinsFontFamily, color = co.alcheclub.ai.trading.assistant.ui.theme.Danger) },
                 onClick = { showCardMenu = false; onDelete() },
                 leadingIcon = { Icon(Icons.Default.Delete, null, tint = co.alcheclub.ai.trading.assistant.ui.theme.Danger, modifier = Modifier.size(18.dp)) }
             )

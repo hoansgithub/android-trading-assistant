@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +73,7 @@ fun DisclaimerView(
         Spacer(modifier = Modifier.height(dimens.spaceXxl))
 
         Text(
-            text = "Important Disclaimer",
+            text = stringResource(R.string.disclaimer_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 28.sp,
@@ -83,7 +84,7 @@ fun DisclaimerView(
         Spacer(modifier = Modifier.height(dimens.spaceSm))
 
         Text(
-            text = "Please read before continuing",
+            text = stringResource(R.string.disclaimer_subtitle),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
@@ -157,7 +158,7 @@ fun DisclaimerView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "I Understand & Continue",
+                    text = stringResource(R.string.disclaimer_understand_continue),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp

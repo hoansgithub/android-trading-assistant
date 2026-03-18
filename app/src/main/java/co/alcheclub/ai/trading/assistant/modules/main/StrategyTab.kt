@@ -53,7 +53,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
@@ -92,19 +94,19 @@ fun StrategyTab(
     if (strategyToDelete != null) {
         AlertDialog(
             onDismissRequest = { strategyToDelete = null },
-            title = { Text("Delete Strategy?", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
-            text = { Text("This strategy will be permanently deleted. Existing analyses will keep their strategy snapshot.", fontFamily = PoppinsFontFamily) },
+            title = { Text(stringResource(R.string.strategy_delete_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(stringResource(R.string.strategy_delete_message), fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteStrategy(strategyToDelete!!.id)
                     strategyToDelete = null
                 }) {
-                    Text("Delete", color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.delete), color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { strategyToDelete = null }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -114,11 +116,11 @@ fun StrategyTab(
     if (errorMessage != null) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissError() },
-            title = { Text("Notice", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.notice), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
             text = { Text(errorMessage ?: "", fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { viewModel.dismissError() }) {
-                    Text("OK", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ok), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             }
         )
@@ -224,7 +226,7 @@ fun StrategyTab(
                         onClick = { viewModel.refresh() },
                         colors = ButtonDefaults.buttonColors(containerColor = Emerald, contentColor = Color.Black)
                     ) {
-                        Text("Retry", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.retry), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -242,7 +244,7 @@ fun StrategyTab(
             .clickable { showBuilder = true },
         contentAlignment = Alignment.Center
     ) {
-        Icon(Icons.Default.Add, "New Strategy", Modifier.size(28.dp), tint = Color.White)
+        Icon(Icons.Default.Add, stringResource(R.string.strategy_new), Modifier.size(28.dp), tint = Color.White)
     }
     } // Close outer Box
 }
@@ -263,7 +265,7 @@ private fun EmptyStrategiesView() {
         )
         Spacer(Modifier.height(dimens.spaceXxl))
         Text(
-            text = "No Strategies Yet",
+            text = stringResource(R.string.strategy_empty_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp,
@@ -272,7 +274,7 @@ private fun EmptyStrategiesView() {
         )
         Spacer(Modifier.height(dimens.spaceSm))
         Text(
-            text = "Create a trading strategy to\npersonalize your analysis",
+            text = stringResource(R.string.strategy_empty_subtitle),
             fontFamily = PoppinsFontFamily,
             fontSize = 14.sp,
             color = TextSecondary,
@@ -345,7 +347,7 @@ private fun StrategyCard(
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "PRESET",
+                                text = stringResource(R.string.preset),
                                 fontFamily = PoppinsFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.sp,
@@ -366,22 +368,22 @@ private fun StrategyCard(
             Box {
                 var showCardMenu by remember { mutableStateOf(false) }
                 IconButton(onClick = { showCardMenu = true }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
+                    Icon(Icons.Default.MoreVert, stringResource(R.string.menu), Modifier.size(18.dp), tint = TextMuted)
                 }
                 DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text("Edit", fontFamily = PoppinsFontFamily) },
+                        text = { Text(stringResource(R.string.edit), fontFamily = PoppinsFontFamily) },
                         onClick = { showCardMenu = false; onEdit() },
                         leadingIcon = { Icon(Icons.Default.Edit, null, modifier = Modifier.size(18.dp)) }
                     )
                     DropdownMenuItem(
-                        text = { Text("Duplicate", fontFamily = PoppinsFontFamily) },
+                        text = { Text(stringResource(R.string.duplicate), fontFamily = PoppinsFontFamily) },
                         onClick = { showCardMenu = false; onDuplicate() },
                         leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(18.dp)) }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("Delete", fontFamily = PoppinsFontFamily, color = Danger) },
+                        text = { Text(stringResource(R.string.delete), fontFamily = PoppinsFontFamily, color = Danger) },
                         onClick = { showCardMenu = false; onDelete() },
                         leadingIcon = { Icon(Icons.Default.Delete, null, tint = Danger, modifier = Modifier.size(18.dp)) }
                     )
@@ -396,9 +398,9 @@ private fun StrategyCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            StrategyMetric(label = "Timeframe", value = strategy.timeframe.uppercase())
-            StrategyMetric(label = "Direction", value = strategy.direction.displayName)
-            StrategyMetric(label = "Entry Rules", value = "${strategy.enabledEntryRuleCount}")
+            StrategyMetric(label = stringResource(R.string.label_timeframe), value = strategy.timeframe.uppercase())
+            StrategyMetric(label = stringResource(R.string.label_direction), value = strategy.direction.displayName)
+            StrategyMetric(label = stringResource(R.string.label_entry_rules), value = "${strategy.enabledEntryRuleCount}")
         }
 
         Spacer(Modifier.height(dimens.spaceSm))
@@ -409,14 +411,14 @@ private fun StrategyCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Risk: ${strategy.riskPerTradeFormatted}/trade",
+                text = stringResource(R.string.strategy_risk_per_trade, strategy.riskPerTradeFormatted),
                 fontFamily = PoppinsFontFamily,
                 fontSize = 11.sp,
                 color = TextSecondary
             )
             if (strategy.stopLossDescription.isNotEmpty()) {
                 Text(
-                    text = "SL: ${strategy.stopLossDescription}",
+                    text = stringResource(R.string.strategy_sl_prefix, strategy.stopLossDescription),
                     fontFamily = PoppinsFontFamily,
                     fontSize = 11.sp,
                     color = TextSecondary,

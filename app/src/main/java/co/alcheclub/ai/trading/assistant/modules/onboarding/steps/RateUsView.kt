@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,7 +65,7 @@ fun RateUsView(
         Spacer(modifier = Modifier.height(dimens.spaceXl))
 
         Text(
-            text = "Help Us Grow",
+            text = stringResource(R.string.rate_us_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 28.sp,
@@ -75,7 +76,7 @@ fun RateUsView(
         Spacer(modifier = Modifier.height(dimens.spaceSm))
 
         Text(
-            text = "Your feedback helps us build a better trading assistant for everyone.",
+            text = stringResource(R.string.rate_us_subtitle),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
@@ -154,7 +155,7 @@ fun RateUsView(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Rate Us Now",
+                    text = stringResource(R.string.rate_us_button),
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp

@@ -17,7 +17,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import co.alcheclub.ai.trading.assistant.MainActivity
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.core.extensions.applyFadeTransition
 import co.alcheclub.ai.trading.assistant.core.viewModelFactory
 import co.alcheclub.ai.trading.assistant.di.AppModule
@@ -78,16 +80,16 @@ class OnboardingActivity : AppCompatActivity() {
                     if (showExitDialog) {
                         AlertDialog(
                             onDismissRequest = { showExitDialog = false },
-                            title = { Text("Leave Onboarding?") },
-                            text = { Text("You can always come back to complete setup later.") },
+                            title = { Text(stringResource(R.string.onboarding_leave_title)) },
+                            text = { Text(stringResource(R.string.onboarding_leave_message)) },
                             confirmButton = {
                                 TextButton(onClick = { finish() }) {
-                                    Text("Exit")
+                                    Text(stringResource(R.string.onboarding_exit))
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = { showExitDialog = false }) {
-                                    Text("Keep Going")
+                                    Text(stringResource(R.string.onboarding_keep_going))
                                 }
                             }
                         )

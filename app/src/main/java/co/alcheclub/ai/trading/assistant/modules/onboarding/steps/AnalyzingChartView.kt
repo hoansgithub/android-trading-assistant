@@ -18,7 +18,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.Border
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
@@ -35,9 +37,9 @@ fun AnalyzingChartView(
     val percentage = (progress * 100).toInt()
 
     val statusText = when {
-        progress < 0.4f -> "Recognizing chart patterns..."
-        progress < 0.6f -> "Fetching market data..."
-        else -> "Running AI analysis..."
+        progress < 0.4f -> stringResource(R.string.analyzing_recognizing)
+        progress < 0.6f -> stringResource(R.string.analyzing_fetching)
+        else -> stringResource(R.string.analyzing_running)
     }
 
     Column(
@@ -48,7 +50,7 @@ fun AnalyzingChartView(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Analyzing Your Chart...",
+            text = stringResource(R.string.analyzing_title),
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,

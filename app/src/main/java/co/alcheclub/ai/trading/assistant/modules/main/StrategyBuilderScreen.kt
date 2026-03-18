@@ -43,7 +43,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.domain.model.Strategy
 import co.alcheclub.ai.trading.assistant.domain.model.TradingDirection
 import co.alcheclub.ai.trading.assistant.domain.model.TradingStyle
@@ -94,7 +96,7 @@ fun StrategyBuilderScreen(
                 Icon(Icons.Default.Close, "Close", tint = TextSecondary)
             }
             Text(
-                if (isEditing) "Edit Strategy" else "New Strategy",
+                if (isEditing) stringResource(R.string.strategy_edit) else stringResource(R.string.strategy_new),
                 fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp, color = TextPrimary, modifier = Modifier.weight(1f)
             )
@@ -105,11 +107,11 @@ fun StrategyBuilderScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Name
-            SectionLabel("Strategy Name")
+            SectionLabel(stringResource(R.string.strategy_name_label))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                placeholder = { Text("My Strategy", fontFamily = PoppinsFontFamily, color = TextMuted) },
+                placeholder = { Text(stringResource(R.string.strategy_name_placeholder), fontFamily = PoppinsFontFamily, color = TextMuted) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -123,11 +125,11 @@ fun StrategyBuilderScreen(
             )
 
             // Description
-            SectionLabel("Description (optional)")
+            SectionLabel(stringResource(R.string.strategy_description_label))
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                placeholder = { Text("Describe your strategy...", fontFamily = PoppinsFontFamily, color = TextMuted) },
+                placeholder = { Text(stringResource(R.string.strategy_description_placeholder), fontFamily = PoppinsFontFamily, color = TextMuted) },
                 modifier = Modifier.fillMaxWidth().height(80.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -140,7 +142,7 @@ fun StrategyBuilderScreen(
             )
 
             // Style picker
-            SectionLabel("Trading Style")
+            SectionLabel(stringResource(R.string.strategy_style_label))
             ChipGroup(
                 options = TradingStyle.entries.map { it.displayName },
                 selected = selectedStyle.displayName,
@@ -148,7 +150,7 @@ fun StrategyBuilderScreen(
             )
 
             // Timeframe picker
-            SectionLabel("Timeframe")
+            SectionLabel(stringResource(R.string.strategy_timeframe_label))
             ChipGroup(
                 options = timeframes.map { it.uppercase() },
                 selected = selectedTimeframe.uppercase(),
@@ -156,7 +158,7 @@ fun StrategyBuilderScreen(
             )
 
             // Direction picker
-            SectionLabel("Direction")
+            SectionLabel(stringResource(R.string.strategy_direction_label))
             ChipGroup(
                 options = TradingDirection.entries.map { it.displayName },
                 selected = selectedDirection.displayName,
@@ -164,7 +166,7 @@ fun StrategyBuilderScreen(
             )
 
             // Risk per trade slider
-            SectionLabel("Risk per Trade: ${"%.1f".format(riskPercent)}%")
+            SectionLabel(stringResource(R.string.strategy_risk_label, "%.1f".format(riskPercent)))
             Slider(
                 value = riskPercent.toFloat(),
                 onValueChange = { riskPercent = (it * 10).toInt() / 10.0 },
@@ -178,7 +180,7 @@ fun StrategyBuilderScreen(
             )
 
             // Max positions
-            SectionLabel("Max Open Positions: $maxPositions")
+            SectionLabel(stringResource(R.string.strategy_max_positions_label, maxPositions))
             Slider(
                 value = maxPositions.toFloat(),
                 onValueChange = { maxPositions = it.toInt() },
@@ -222,7 +224,7 @@ fun StrategyBuilderScreen(
             )
         ) {
             Text(
-                if (isEditing) "Save Changes" else "Create Strategy",
+                if (isEditing) stringResource(R.string.strategy_save_button) else stringResource(R.string.strategy_create_button),
                 fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 17.sp
             )
         }

@@ -49,8 +49,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import co.alcheclub.ai.trading.assistant.BuildConfig
+import co.alcheclub.ai.trading.assistant.R
 import co.alcheclub.ai.trading.assistant.core.AppLinks
 import co.alcheclub.ai.trading.assistant.ui.theme.AppDimens
 import co.alcheclub.ai.trading.assistant.ui.theme.BgCard
@@ -84,16 +86,16 @@ fun ProfileTab(
     if (showSignOutDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissSignOut() },
-            title = { Text("Sign Out", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
-            text = { Text("Are you sure you want to sign out?", fontFamily = PoppinsFontFamily) },
+            title = { Text(stringResource(R.string.profile_sign_out_title), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text(stringResource(R.string.profile_sign_out_confirm), fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { viewModel.signOut(onLogout) }) {
-                    Text("Sign Out", color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.profile_sign_out), color = Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissSignOut() }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -104,11 +106,11 @@ fun ProfileTab(
         var deleteText by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { viewModel.dismissDeleteAccount() },
-            title = { Text("Delete Account", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.profile_delete_account), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
             text = {
                 Column {
                     Text(
-                        "This will permanently delete your account and all associated data. This action cannot be undone.",
+                        stringResource(R.string.profile_delete_confirm),
                         fontFamily = PoppinsFontFamily,
                         fontSize = 14.sp
                     )
@@ -116,7 +118,7 @@ fun ProfileTab(
                     TextField(
                         value = deleteText,
                         onValueChange = { deleteText = it },
-                        placeholder = { Text("Type \"delete\" to confirm") },
+                        placeholder = { Text(stringResource(R.string.profile_delete_type_hint)) },
                         singleLine = true
                     )
                 }
@@ -126,13 +128,13 @@ fun ProfileTab(
                     onClick = { viewModel.deleteAccount(onLogout) },
                     enabled = deleteText.lowercase() == "delete"
                 ) {
-                    Text("Delete", color = if (deleteText.lowercase() == "delete") Danger else TextMuted,
+                    Text(stringResource(R.string.delete), color = if (deleteText.lowercase() == "delete") Danger else TextMuted,
                         fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteAccount() }) {
-                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                    Text(stringResource(R.string.cancel), fontFamily = PoppinsFontFamily)
                 }
             }
         )
@@ -142,11 +144,11 @@ fun ProfileTab(
     if (message != null) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissMessage() },
-            title = { Text("Notice", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.notice), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
             text = { Text(message ?: "", fontFamily = PoppinsFontFamily) },
             confirmButton = {
                 TextButton(onClick = { viewModel.dismissMessage() }) {
-                    Text("OK", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ok), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
                 }
             }
         )
@@ -166,11 +168,11 @@ fun ProfileTab(
             Spacer(Modifier.height(dimens.spaceLg))
 
             // Preferences Section
-            ProfileSection(title = "PREFERENCES") {
+            ProfileSection(title = stringResource(R.string.profile_preferences)) {
                 ProfileRow(
                     icon = Icons.Default.CreditCard,
                     iconColor = Emerald,
-                    title = "Restore Purchases",
+                    title = stringResource(R.string.profile_restore_purchases),
                     onClick = { viewModel.restorePurchases() }
                 )
             }
@@ -178,11 +180,11 @@ fun ProfileTab(
             Spacer(Modifier.height(dimens.spaceLg))
 
             // About Section
-            ProfileSection(title = "ABOUT") {
+            ProfileSection(title = stringResource(R.string.profile_about)) {
                 ProfileRow(
                     icon = Icons.Default.Description,
                     iconColor = TextSecondary,
-                    title = "Terms of Service",
+                    title = stringResource(R.string.profile_terms),
                     onClick = {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppLinks.TERMS_OF_SERVICE)))
                     }
@@ -190,7 +192,7 @@ fun ProfileTab(
                 ProfileRow(
                     icon = Icons.Default.PrivacyTip,
                     iconColor = TextSecondary,
-                    title = "Privacy Policy",
+                    title = stringResource(R.string.profile_privacy),
                     onClick = {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppLinks.PRIVACY_POLICY)))
                     }
@@ -198,7 +200,7 @@ fun ProfileTab(
                 ProfileRow(
                     icon = Icons.Default.Star,
                     iconColor = Caution,
-                    title = "Rate the App",
+                    title = stringResource(R.string.profile_rate),
                     onClick = {
                         try {
                             context.startActivity(Intent(Intent.ACTION_VIEW,
@@ -212,7 +214,7 @@ fun ProfileTab(
                 ProfileRow(
                     icon = Icons.Default.Email,
                     iconColor = TextSecondary,
-                    title = "Send Feedback",
+                    title = stringResource(R.string.profile_feedback),
                     onClick = {
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:")
@@ -229,7 +231,7 @@ fun ProfileTab(
             // Danger Zone - Sign Out
             DangerRow(
                 icon = Icons.AutoMirrored.Filled.Logout,
-                title = "Sign Out",
+                title = stringResource(R.string.profile_sign_out),
                 color = TextPrimary,
                 onClick = { viewModel.requestSignOut() }
             )
@@ -239,7 +241,7 @@ fun ProfileTab(
             // Danger Zone - Delete Account
             DangerRow(
                 icon = Icons.Default.Delete,
-                title = "Delete Account",
+                title = stringResource(R.string.profile_delete_account),
                 color = TextTertiary,
                 onClick = { viewModel.requestDeleteAccount() }
             )
@@ -252,13 +254,13 @@ fun ProfileTab(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Alpha Profit AI",
+                    text = stringResource(R.string.app_name),
                     fontFamily = PoppinsFontFamily,
                     fontSize = 12.sp,
                     color = TextMuted
                 )
                 Text(
-                    text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    text = stringResource(R.string.profile_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
                     fontFamily = PoppinsFontFamily,
                     fontSize = 11.sp,
                     color = TextMuted
@@ -313,7 +315,7 @@ private fun ProfileHeader(userProfile: UserProfile) {
         if (userProfile.memberSince.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Member since ${userProfile.memberSince}",
+                text = stringResource(R.string.profile_member_since, userProfile.memberSince),
                 fontFamily = PoppinsFontFamily,
                 fontSize = 11.sp,
                 color = TextMuted,
