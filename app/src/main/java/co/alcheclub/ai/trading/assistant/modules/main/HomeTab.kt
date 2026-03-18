@@ -34,15 +34,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +89,7 @@ import co.alcheclub.ai.trading.assistant.ui.theme.Caution
 import co.alcheclub.ai.trading.assistant.ui.theme.Emerald
 import co.alcheclub.ai.trading.assistant.ui.theme.EmeraldDark
 import co.alcheclub.ai.trading.assistant.ui.theme.PoppinsFontFamily
+import co.alcheclub.ai.trading.assistant.ui.theme.TextMuted
 import co.alcheclub.ai.trading.assistant.ui.theme.TextPrimary
 import co.alcheclub.ai.trading.assistant.ui.theme.TextSecondary
 import co.alcheclub.ai.trading.assistant.ui.theme.Warning
@@ -105,6 +112,8 @@ fun HomeTab(
 
     var showMenu by remember { mutableStateOf(false) }
     var showChartGuide by remember { mutableStateOf(false) }
+    var selectedAnalysis by remember { mutableStateOf<Analysis?>(null) }
+    var analysisToDelete by remember { mutableStateOf<Analysis?>(null) }
 
     LaunchedEffect(Unit) { viewModel.onViewAppear() }
 
@@ -167,6 +176,38 @@ fun HomeTab(
         return
     }
 
+    // Detail screen
+    if (selectedAnalysis != null) {
+        AnalysisDetailScreen(
+            analysis = selectedAnalysis!!,
+            onBack = { selectedAnalysis = null },
+            onDelete = {
+                viewModel.deleteAnalysis(selectedAnalysis!!.id)
+                selectedAnalysis = null
+            }
+        )
+        return
+    }
+
+    // Inline delete confirmation
+    if (analysisToDelete != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { analysisToDelete = null },
+            title = { Text("Delete Analysis", fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold) },
+            text = { Text("Are you sure you want to delete this analysis? This action cannot be undone.", fontFamily = PoppinsFontFamily) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.deleteAnalysis(analysisToDelete!!.id); analysisToDelete = null }) {
+                    Text("Delete", color = co.alcheclub.ai.trading.assistant.ui.theme.Danger, fontFamily = PoppinsFontFamily, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { analysisToDelete = null }) {
+                    Text("Cancel", fontFamily = PoppinsFontFamily)
+                }
+            }
+        )
+    }
+
     // Main content
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
@@ -187,7 +228,11 @@ fun HomeTab(
                         verticalArrangement = Arrangement.spacedBy(dimens.spaceMd)
                     ) {
                         items(state.analyses, key = { it.id }) { analysis ->
-                            AnalysisCard(analysis = analysis)
+                            AnalysisCard(
+                                analysis = analysis,
+                                onClick = { selectedAnalysis = analysis },
+                                onDelete = { analysisToDelete = analysis }
+                            )
                         }
                         item { Spacer(Modifier.height(80.dp)) }
                     }
@@ -316,7 +361,11 @@ private fun EmptyAnalysesView() {
 }
 
 @Composable
-private fun AnalysisCard(analysis: Analysis) {
+private fun AnalysisCard(
+    analysis: Analysis,
+    onClick: () -> Unit = {},
+    onDelete: () -> Unit = {}
+) {
     val dimens = AppDimens.current
     val signalColor = when (analysis.signal) {
         TradingSignal.BULLISH -> Emerald
@@ -330,8 +379,10 @@ private fun AnalysisCard(analysis: Analysis) {
         RiskLevel.VERY_HIGH -> Bearish
     }
 
+    Box {
     Column(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(BgCard).padding(dimens.spaceLg)
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(BgCard)
+            .clickable(onClick = onClick).padding(dimens.spaceLg)
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AssetIconView(symbol = analysis.assetSymbol, size = 40.dp)
@@ -356,6 +407,22 @@ private fun AnalysisCard(analysis: Analysis) {
         Spacer(Modifier.height(dimens.spaceSm))
         Text(relativeTime(analysis.analyzedAt), fontFamily = PoppinsFontFamily, fontSize = 11.sp, color = TextSecondary)
     }
+
+    // Three-dot delete menu (bottom-right overlay)
+    Box(Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+        var showCardMenu by remember { mutableStateOf(false) }
+        IconButton(onClick = { showCardMenu = true }, modifier = Modifier.size(28.dp)) {
+            Icon(Icons.Default.MoreVert, "Menu", Modifier.size(18.dp), tint = TextMuted)
+        }
+        DropdownMenu(expanded = showCardMenu, onDismissRequest = { showCardMenu = false }) {
+            DropdownMenuItem(
+                text = { Text("Delete", fontFamily = PoppinsFontFamily, color = co.alcheclub.ai.trading.assistant.ui.theme.Danger) },
+                onClick = { showCardMenu = false; onDelete() },
+                leadingIcon = { Icon(Icons.Default.Delete, null, tint = co.alcheclub.ai.trading.assistant.ui.theme.Danger, modifier = Modifier.size(18.dp)) }
+            )
+        }
+    }
+    } // Close Box wrapper
 }
 
 @Composable
