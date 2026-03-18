@@ -53,13 +53,18 @@ fun AssetIconView(
     // Load icon in background coroutine — try crypto then stock, with cache
     LaunchedEffect(baseSymbol) {
         val cached = iconCache[baseSymbol]
-        if (cached != null) {
+        if (cached is ImageBitmap) {
             bitmap = cached
-        } else if (!iconCache.containsKey(baseSymbol)) {
+        } else if (cached == null) { // Not in cache yet — load
             val result = loadAssetIcon(baseSymbol)
-            iconCache[baseSymbol] = result
-            bitmap = result
+            if (result != null) {
+                iconCache[baseSymbol] = result
+                bitmap = result
+            } else {
+                iconCache[baseSymbol] = "FAILED" // Sentinel: tried, no icon
+            }
         }
+        // If cached == "FAILED", bitmap stays null → shows initials
     }
 
     Box(
@@ -120,8 +125,8 @@ private suspend fun loadAssetIcon(baseSymbol: String): ImageBitmap? = withContex
 }
 
 // In-memory cache to avoid re-fetching on recomposition.
-// ConcurrentHashMap is thread-safe for concurrent coroutine access.
-private val iconCache = java.util.concurrent.ConcurrentHashMap<String, ImageBitmap?>()
+// Uses sentinel value for "tried but failed" to distinguish from "not tried yet".
+private val iconCache = java.util.concurrent.ConcurrentHashMap<String, Any>()
 
 /**
  * Extract base symbol from trading pair.

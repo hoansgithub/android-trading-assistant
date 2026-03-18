@@ -68,26 +68,17 @@ fun MainScreen(
             .background(BgPrimary)
             .statusBarsPadding()
     ) {
-        // Content area — all tabs stay composed to preserve scroll position and state.
-        // Hidden tabs get 0dp size so they don't consume layout or touch events.
+        // Content area
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            HomeTab(
-                viewModel = homeViewModel,
-                modifier = if (selectedTab == 0) Modifier.fillMaxSize() else Modifier.size(0.dp)
-            )
-            StrategyTab(
-                viewModel = strategyViewModel,
-                modifier = if (selectedTab == 1) Modifier.fillMaxSize() else Modifier.size(0.dp)
-            )
-            ProfileTab(
-                viewModel = profileViewModel,
-                onLogout = onLogout,
-                modifier = if (selectedTab == 2) Modifier.fillMaxSize() else Modifier.size(0.dp)
-            )
+            when (selectedTab) {
+                0 -> HomeTab(viewModel = homeViewModel)
+                1 -> StrategyTab(viewModel = strategyViewModel)
+                2 -> ProfileTab(viewModel = profileViewModel, onLogout = onLogout)
+            }
         }
 
         // Divider

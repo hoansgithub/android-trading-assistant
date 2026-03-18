@@ -181,7 +181,8 @@ object AppModule {
     fun createHomeViewModel(): HomeViewModel {
         return HomeViewModel(
             analysisRepository = analysisRepository,
-            authRepository = authRepository
+            authRepository = authRepository,
+            analyzeChartUseCase = createAnalyzeChartUseCase()
         )
     }
 
